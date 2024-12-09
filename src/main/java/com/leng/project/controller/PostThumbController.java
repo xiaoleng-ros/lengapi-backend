@@ -1,5 +1,6 @@
 package com.leng.project.controller;
 
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.BaseResponse;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.common.ResultUtils;
@@ -7,7 +8,6 @@ import com.leng.project.exception.BusinessException;
 import com.leng.project.model.dto.postthumb.PostThumbAddRequest;
 import com.leng.project.service.PostThumbService;
 import com.leng.project.service.UserService;
-import com.leng.project.model.entity.User;
 
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;

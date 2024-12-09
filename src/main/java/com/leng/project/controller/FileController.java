@@ -1,6 +1,7 @@
 package com.leng.project.controller;
 
 import cn.hutool.core.io.FileUtil;
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.BaseResponse;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.common.ResultUtils;
@@ -9,7 +10,6 @@ import com.leng.project.manager.CosManager;
 import com.leng.project.service.UserService;
 import com.leng.project.exception.BusinessException;
 import com.leng.project.model.dto.file.UploadFileRequest;
-import com.leng.project.model.entity.User;
 import com.leng.project.model.enums.FileUploadBizEnum;
 
 import java.io.File;

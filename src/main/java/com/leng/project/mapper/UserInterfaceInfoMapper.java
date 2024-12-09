@@ -1,15 +1,17 @@
 package com.leng.project.mapper;
 
-import com.leng.project.model.entity.UserInterfaceInfo;
 import com.baomidou.mybatisplus.core.mapper.BaseMapper;
+import com.leng.lengapicommon.model.entity.UserInterfaceInfo;
+
+import java.util.List;
 
 /**
-* @author lengleng
-* @description 针对表【user_interface_info(用户调用接口关系)】的数据库操作Mapper
-* @Entity com.leng.project.model.entity.UserInterfaceInfo
-*/
+ * 用户调用接口关系 Mapper
+ * @author leng
+ */
 public interface UserInterfaceInfoMapper extends BaseMapper<UserInterfaceInfo> {
 
+    List<UserInterfaceInfo> listTopInvokeInterfaceInfo(int limit);
 }
 
 

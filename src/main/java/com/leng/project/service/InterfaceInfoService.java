@@ -1,7 +1,8 @@
 package com.leng.project.service;
 
+
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.leng.project.model.entity.InterfaceInfo;
+import com.leng.lengapicommon.model.entity.InterfaceInfo;
 
 /**
 * @author lengleng

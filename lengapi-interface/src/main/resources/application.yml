@@ -1,0 +1,8 @@
+server:
+  port: 8201
+  servlet:
+    context-path: /api
+lengapi:
+  client:
+    access-key: xiaoleng
+    secret-key: abcdefg

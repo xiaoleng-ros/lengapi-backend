@@ -2,13 +2,12 @@ package com.leng.project.service.impl;
 
 import com.baomidou.mybatisplus.core.conditions.update.UpdateWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.leng.lengapicommon.model.entity.UserInterfaceInfo;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.exception.BusinessException;
-import com.leng.project.model.entity.InterfaceInfo;
-import com.leng.project.model.entity.UserInterfaceInfo;
-import com.leng.project.service.UserInterfaceInfoService;
 import com.leng.project.mapper.UserInterfaceInfoMapper;
-import org.apache.commons.lang3.StringUtils;
+import com.leng.project.service.UserInterfaceInfoService;
+
 import org.springframework.stereotype.Service;
 
 /**
@@ -17,7 +16,8 @@ import org.springframework.stereotype.Service;
 */
 @Service
 public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoMapper, UserInterfaceInfo>
-    implements UserInterfaceInfoService{
+    implements UserInterfaceInfoService {
+
     @Override
     public void validUserInterfaceInfo(UserInterfaceInfo userInterfaceInfo, boolean add) {
         if (userInterfaceInfo == null) {
@@ -29,7 +29,6 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
             // 有参数则校验
             if (userInterfaceInfo.getInterfaceInfoId() <= 0 || userInterfaceInfo.getUserId() <= 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口或用户不存在");
-
             }
         }
         if (userInterfaceInfo.getLeftNum() < 0) {

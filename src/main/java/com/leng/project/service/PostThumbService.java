@@ -1,8 +1,8 @@
 package com.leng.project.service;
 
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.model.entity.PostThumb;
 import com.baomidou.mybatisplus.extension.service.IService;
-import com.leng.project.model.entity.User;
 
 /**
  * 帖子点赞服务

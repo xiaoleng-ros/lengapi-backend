@@ -1,6 +1,7 @@
 package com.leng.project.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.BaseResponse;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.common.ResultUtils;
@@ -13,7 +14,6 @@ import com.leng.project.service.UserService;
 import com.leng.project.exception.BusinessException;
 import com.leng.project.exception.ThrowUtils;
 import com.leng.project.model.entity.Post;
-import com.leng.project.model.entity.User;
 import com.leng.project.model.vo.PostVO;
 
 import javax.annotation.Resource;

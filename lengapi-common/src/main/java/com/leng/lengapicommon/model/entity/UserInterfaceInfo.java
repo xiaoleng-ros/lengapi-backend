@@ -1,19 +1,18 @@
-package com.leng.project.model.entity;
+package com.leng.lengapicommon.model.entity;
 
 import com.baomidou.mybatisplus.annotation.*;
+import lombok.Data;
 
 import java.io.Serializable;
 import java.util.Date;
-import lombok.Data;
 
 /**
  * 用户调用接口关系
- * @TableName user_interface_info
+ *
  */
 @TableName(value ="user_interface_info")
 @Data
 public class UserInterfaceInfo implements Serializable {
-
     /**
      * 主键
      */
@@ -41,7 +40,7 @@ public class UserInterfaceInfo implements Serializable {
     private Integer leftNum;
 
     /**
-     * 0-正常,1-禁用
+     * 0-正常，1-禁用
      */
     private Integer status;
 
@@ -59,7 +58,7 @@ public class UserInterfaceInfo implements Serializable {
      * 是否删除(0-未删, 1-已删)
      */
     @TableLogic
-    private Integer isDeleted;
+    private Integer isDelete;
 
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;

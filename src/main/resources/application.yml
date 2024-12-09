@@ -22,6 +22,12 @@ spring:
     url: jdbc:mysql://localhost:3306/lengapi
     username: root
     password: xiaoleng
+    logging:
+      level:
+        org:
+          springframework:
+            boot:
+              autoconfigure=DEBUG:
   # Redis 配置
   # todo 需替换配置，然后取消注释
 #  redis:
@@ -99,8 +105,18 @@ knife4j:
         api-rule: package
         api-rule-resources:
           - com.leng.project.controller
-
+# 这段配置仅供测试调用,实际应根据用户登陆信息获取对应的ak,sk
 lengapi:
   client:
     access-key: xiaoleng
     secret-key: abcdefg
+
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848

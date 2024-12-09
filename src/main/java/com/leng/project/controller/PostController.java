@@ -2,6 +2,7 @@ package com.leng.project.controller;
 
 import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.BaseResponse;
 import com.leng.project.common.DeleteRequest;
 import com.leng.project.common.ErrorCode;
@@ -17,7 +18,6 @@ import com.leng.project.annotation.AuthCheck;
 import com.leng.project.exception.BusinessException;
 import com.leng.project.exception.ThrowUtils;
 import com.leng.project.model.entity.Post;
-import com.leng.project.model.entity.User;
 import com.leng.project.model.vo.PostVO;
 
 import java.util.List;

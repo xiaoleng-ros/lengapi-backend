@@ -1,6 +1,7 @@
 package com.leng.project.controller;
 
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.annotation.AuthCheck;
 import com.leng.project.common.BaseResponse;
 import com.leng.project.common.DeleteRequest;
@@ -19,7 +20,6 @@ import com.leng.project.model.dto.user.UserQueryRequest;
 import com.leng.project.model.dto.user.UserRegisterRequest;
 import com.leng.project.model.dto.user.UserUpdateMyRequest;
 import com.leng.project.model.dto.user.UserUpdateRequest;
-import com.leng.project.model.entity.User;
 
 import java.util.List;
 import javax.annotation.Resource;

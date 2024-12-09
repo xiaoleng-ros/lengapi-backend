@@ -3,6 +3,7 @@ package com.leng.project.service.impl;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.constant.CommonConstant;
 import com.leng.project.exception.BusinessException;
@@ -13,7 +14,7 @@ import com.leng.project.mapper.PostThumbMapper;
 import com.leng.project.model.dto.post.PostEsDTO;
 import com.leng.project.model.dto.post.PostQueryRequest;
 import com.leng.project.model.entity.PostThumb;
-import com.leng.project.model.entity.User;
+
 import com.leng.project.model.vo.PostVO;
 import com.leng.project.model.vo.UserVO;
 import com.leng.project.service.PostService;

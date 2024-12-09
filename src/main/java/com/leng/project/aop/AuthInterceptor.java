@@ -1,9 +1,9 @@
 package com.leng.project.aop;
 
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.annotation.AuthCheck;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.exception.BusinessException;
-import com.leng.project.model.entity.User;
 import com.leng.project.model.enums.UserRoleEnum;
 import com.leng.project.service.UserService;
 import org.aspectj.lang.ProceedingJoinPoint;

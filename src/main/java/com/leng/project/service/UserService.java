@@ -2,8 +2,8 @@ package com.leng.project.service;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.IService;
+import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.model.dto.user.UserQueryRequest;
-import com.leng.project.model.entity.User;
 import com.leng.project.model.vo.LoginUserVO;
 import com.leng.project.model.vo.UserVO;
 import java.util.List;

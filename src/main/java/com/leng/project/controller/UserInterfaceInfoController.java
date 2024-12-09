@@ -2,7 +2,8 @@ package com.leng.project.controller;
 
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
-import com.leng.lengapiclientsdk.client.LengapiClient;
+import com.leng.lengapicommon.model.entity.User;
+import com.leng.lengapicommon.model.entity.UserInterfaceInfo;
 import com.leng.project.annotation.AuthCheck;
 import com.leng.project.common.*;
 import com.leng.project.constant.CommonConstant;
@@ -11,8 +12,6 @@ import com.leng.project.exception.BusinessException;
 import com.leng.project.model.dto.userinterfaceinfo.UserInterfaceInfoAddRequest;
 import com.leng.project.model.dto.userinterfaceinfo.UserInterfaceInfoQueryRequest;
 import com.leng.project.model.dto.userinterfaceinfo.UserInterfaceInfoUpdateRequest;
-import com.leng.project.model.entity.UserInterfaceInfo;
-import com.leng.project.model.entity.User;
 import com.leng.project.service.UserInterfaceInfoService;
 import com.leng.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
