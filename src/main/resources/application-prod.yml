@@ -1,13 +1,13 @@
 # 线上配置文件
-
 server:
-  port: 8101
+  port: 8102
+  address: 0.0.0.0
 spring:
   # 数据库配置
   # todo 需替换配置
   datasource:
     driver-class-name: com.mysql.cj.jdbc.Driver
-    url: jdbc:mysql://localhost:3306/lengapi
+    url: jdbc:mysql://localhost:3306/lengapi_prod
     username: root
     password: xiaoleng
   # Redis 配置
