@@ -25,7 +25,7 @@ public class LogInterceptor {
     /**
      * 执行拦截
      */
-    //@Around("execution(* com.yupi.springbootinit.controller.*.*(..))")
+    //@Around("execution(* com.leng.project.controller.*.*(..))")
     @Around("execution(* com.leng.project.controller.*.*(..))")
     public Object doInterceptor(ProceedingJoinPoint point) throws Throwable {
         // 计时

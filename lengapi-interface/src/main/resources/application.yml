@@ -2,6 +2,12 @@ server:
   port: 8201
   address: 0.0.0.0
   servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true
+      force-request: true
+      force-response: true
     context-path: /api
 lengapi:
   client:

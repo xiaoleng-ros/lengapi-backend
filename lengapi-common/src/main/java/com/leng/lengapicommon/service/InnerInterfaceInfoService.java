@@ -9,7 +9,16 @@ import com.leng.lengapicommon.model.entity.InterfaceInfo;
 public interface InnerInterfaceInfoService {
 
     /**
-     * 从数据库中查询模拟接口是否存在（请求路径、请求方法、请求参数）
+     * 获取接口信息
+     * @param path 请求路径
+     * @param method 请求方法
+     * @return 接口信息
      */
     InterfaceInfo getInterfaceInfo(String path, String method);
+
+    /**
+     * 更新接口总调用次数
+     * @param interfaceInfoId 接口ID
+     */
+    void addInterfaceTotal(Long interfaceInfoId);
 }

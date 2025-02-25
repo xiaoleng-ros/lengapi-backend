@@ -30,6 +30,7 @@ public class LengapiGatewayApplication {
     private DemoService demoService;
 
 	public static void main(String[] args) {
+
         ConfigurableApplicationContext context = SpringApplication.run(LengapiGatewayApplication.class, args);
         LengapiGatewayApplication application = context.getBean(LengapiGatewayApplication.class);
         String result = application.doSayHello("world");

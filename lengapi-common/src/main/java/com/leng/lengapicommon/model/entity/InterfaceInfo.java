@@ -3,6 +3,7 @@ package com.leng.lengapicommon.model.entity;
 import com.baomidou.mybatisplus.annotation.*;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -63,6 +64,11 @@ public class InterfaceInfo implements Serializable {
     private String method;
 
     /**
+     *  接口调用总次数
+     */
+    private Long interfaceTotal;
+
+    /**
      * 创建人
      */
     private Long userId;
@@ -83,6 +89,7 @@ public class InterfaceInfo implements Serializable {
     @TableLogic
     private Integer isDelete;
 
+    @Serial
     @TableField(exist = false)
     private static final long serialVersionUID = 1L;
 }

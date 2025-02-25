@@ -2,6 +2,7 @@ package com.leng.project.model.dto.interfaceinfo;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 
@@ -57,5 +58,6 @@ public class InterfaceInfoUpdateRequest implements Serializable {
      */
     private String method;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }

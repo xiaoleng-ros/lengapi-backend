@@ -193,6 +193,4 @@ public class UserInterfaceInfoController {
         return ResultUtils.success(userInterfaceInfoPage);
     }
 
-    // endregion
-
 }

@@ -4,10 +4,10 @@ server:
   port: 8301
   address: 0.0.0.0
 api:
-  base-url: http://localhost:8201  # 本地开发环境
+  base-url: http://119.91.248.232:8201  # 生产环境
 spring:
   profiles:
-    active: dev
+    active: prod
   cloud:
     gateway:
       default-filters:
@@ -15,7 +15,7 @@ spring:
         - AddResponseHeader=Content-Type, application/json;charset=UTF-8
       routes:
         - id: api_route
-          uri: http://localhost:8201
+          uri: http://localhost:8201  # 因为接口平台不对外开放，是通过后端==>网关==>接口地址，所以直接写localhost
           predicates:
             - Path=/api/**
 #             - id: add_request_header_route
@@ -40,15 +40,18 @@ logging:
         cloud:
           gateway: trace
 
+# 以下配置指定了应用的名称、使用的协议（Dubbo）、注册中心的类型（Nacos）和地址
 dubbo:
   application:
-    qosPort: 33333
+    # 设置应用的名称
     name: dubbo-springboot-demo-gateway
+  # 指定使用 Dubbo 协议，且端口设置为 -1，表示随机分配可用端口
   protocol:
     name: dubbo
     port: -1
   registry:
+    # 配置注册中心为 Nacos，使用的地址是 nacos://localhost:8848
     id: nacos-registry
-    address: nacos://localhost:8848
+    address: nacos://119.91.248.232:8848
 
 

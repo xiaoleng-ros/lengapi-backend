@@ -4,6 +4,8 @@ import com.leng.lengapicommon.model.entity.InterfaceInfo;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
 
+import java.io.Serial;
+
 /**
  * 接口信息封装视图
  *
@@ -17,5 +19,6 @@ public class InterfaceInfoVO extends InterfaceInfo {
      */
     private Integer totalNum;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }

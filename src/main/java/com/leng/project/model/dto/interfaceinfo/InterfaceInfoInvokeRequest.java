@@ -2,6 +2,7 @@ package com.leng.project.model.dto.interfaceinfo;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 /**
@@ -21,5 +22,6 @@ public class InterfaceInfoInvokeRequest implements Serializable {
      */
     private String userRequestParams;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }

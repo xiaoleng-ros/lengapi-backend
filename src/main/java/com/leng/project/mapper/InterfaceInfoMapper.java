@@ -10,6 +10,7 @@ import com.leng.lengapicommon.model.entity.InterfaceInfo;
 */
 public interface InterfaceInfoMapper extends BaseMapper<InterfaceInfo> {
 
+    void addInterfaceTotal(Long interfaceInfoId);
 }
 
 

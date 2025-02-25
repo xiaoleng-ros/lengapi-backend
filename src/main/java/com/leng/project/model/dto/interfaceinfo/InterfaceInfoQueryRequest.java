@@ -63,6 +63,11 @@ public class InterfaceInfoQueryRequest extends PageRequest implements Serializab
     private String method;
 
     /**
+     *  接口调用总次数
+     */
+    private Long interfaceTotal;
+
+    /**
      * 创建人
      */
     private Long userId;

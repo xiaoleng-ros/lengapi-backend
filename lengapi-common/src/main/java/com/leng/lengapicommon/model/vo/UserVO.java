@@ -2,6 +2,7 @@ package com.leng.lengapicommon.model.vo;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Date;
 
@@ -51,5 +52,6 @@ public class UserVO implements Serializable {
      */
     private Date updateTime;
 
+    @Serial
     private static final long serialVersionUID = 1L;
 }

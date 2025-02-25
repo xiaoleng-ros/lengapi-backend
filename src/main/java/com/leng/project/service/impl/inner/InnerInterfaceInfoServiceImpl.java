@@ -27,4 +27,9 @@ public class InnerInterfaceInfoServiceImpl implements InnerInterfaceInfoService 
         queryWrapper.eq("method", method);
         return interfaceInfoMapper.selectOne(queryWrapper);
     }
+
+    @Override
+    public void addInterfaceTotal(Long interfaceInfoId) {
+        interfaceInfoMapper.addInterfaceTotal(interfaceInfoId);
+    }
 }

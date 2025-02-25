@@ -1,5 +1,7 @@
 package com.leng.project.controller;
 
+import cn.hutool.json.JSONObject;
+import cn.hutool.json.JSONUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.google.gson.Gson;
@@ -24,6 +26,7 @@ import org.springframework.web.bind.annotation.*;
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import java.util.List;
+import java.util.Objects;
 
 
 /**
@@ -286,7 +289,7 @@ public class InterfaceInfoController {
         if (oldInterfaceInfo == null) {
             throw new BusinessException(ErrorCode.NOT_FOUND_ERROR);
         }
-        if (oldInterfaceInfo.getStatus() == InterfaceInfoStatusEnum.OFFLINE.getValue()) {
+        if (Objects.equals(oldInterfaceInfo.getStatus(), InterfaceInfoStatusEnum.OFFLINE.getValue())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "接口已关闭");
         }
         User loginUser = userService.getLoginUser(request);
@@ -296,7 +299,19 @@ public class InterfaceInfoController {
         Gson gson = new Gson();
         com.leng.lengapiclientsdk.model.User user = gson.fromJson(userRequestParams, com.leng.lengapiclientsdk.model.User.class);
         String usernameByPost = tempClient.getUsernameByPost(user);
-        return ResultUtils.success(usernameByPost);
+        //return ResultUtils.success(usernameByPost);
+
+        // 直接将返回的JSON字符串转换为JSON对象返回
+        try {
+            JSONObject jsonObject = JSONUtil.parseObj(usernameByPost);
+            return new BaseResponse<>(0, jsonObject, "返回信息描述");
+        } catch (Exception e) {
+            // 如果解析失败，返回包含错误信息的JSON对象
+            JSONObject errorResponse = new JSONObject();
+            errorResponse.set("message", "解析返回结果失败：" + usernameByPost);
+            return new BaseResponse<>(-1, errorResponse, "返回信息描述");
+        }
+
     }
 
 }
