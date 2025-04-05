@@ -1,0 +1,82 @@
+# 公共配置文件
+spring:
+  application:
+    name: lengapi-backend
+  # 支持 swagger3
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+    static-path-pattern: /**
+  # session 配置
+  session:
+    # todo 取消注释开启分布式 session（须先配置 Redis）
+    # store-type: redis
+    # 30 天过期
+    timeout: 2592000
+  # 数据库配置
+  # todo 需替换配置
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://localhost:3306/lengapi
+    username: root
+    password: xiaoleng
+  # 文件上传
+  servlet:
+    multipart:
+      enabled: true
+      # 大小限制
+      max-file-size: 5MB
+      max-request-size: 5MB
+server:
+  address: 0.0.0.0
+  port: 8101
+  servlet:
+    context-path: /api
+    # cookie 30 天过期
+    session:
+      cookie:
+        max-age: 2592000
+mybatis-plus:
+  configuration:
+    map-underscore-to-camel-case: false
+    log-impl: org.apache.ibatis.logging.stdout.StdOutImpl
+  global-config:
+    db-config:
+      logic-delete-field: isDelete # 全局逻辑删除的实体字段名
+      logic-delete-value: 1 # 逻辑已删除值（默认为 1）
+      logic-not-delete-value: 0 # 逻辑未删除值（默认为 0）
+
+# 腾讯云对象储存
+cos:
+  client:
+    accessKey: xxxxxx  # 腾讯云 SecretId
+    secretKey: xxxxxx  # 腾讯云 SecretKey
+    region: xxxxxx  # 腾讯云 COS 所在区域
+    bucket:  xxxxxx  # 腾讯云 COS Bucket 名称
+
+# 接口文档配置
+# 旧版 Knife4j 3.x 配置
+knife4j:
+  enable: true          # 启用增强功能
+  setting:
+    language: zh-CN     # 中文界面
+  documents:
+    - group: default    # 分组配置
+      name: API接口
+      locations: classpath:doc/example.md  # 可选：附加文档路径
+
+# 这段配置仅供测试调用,实际应根据用户登陆信息获取对应的ak,sk
+lengapi:
+  client:
+    access-key: xiaoleng
+    secret-key: abcdefg
+
+dubbo:
+  application:
+    name: dubbo-springboot-demo-provider
+  protocol:
+    name: dubbo
+    port: -1
+  registry:
+    id: nacos-registry
+    address: nacos://localhost:8848
