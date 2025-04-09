@@ -14,7 +14,7 @@ public class NameRequest extends BaseRequest<NameParams, NameResponse> {
 
     @Override
     public String getPath() {
-        return "/api/name/user";
+        return "/name";
     }
 
     /**
@@ -31,7 +31,5 @@ public class NameRequest extends BaseRequest<NameParams, NameResponse> {
     public String getMethod() {
         return RequestMethodEnum.POST.getValue(); // 必须返回POST
     }
-
-
 
 }

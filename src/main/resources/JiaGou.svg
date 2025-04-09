@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="800" height="850" viewBox="0 0 800 850" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background -->
+  <rect width="800" height="850" fill="#f8f9fa" />
+  
+  <!-- Title
+  <text x="400" y="30" font-family="Arial" font-size="24" font-weight="bold" text-anchor="middle" fill="#333">接口管理平台架构图</text> -->
+  
+  <!-- User Layer -->
+  <g id="user-layer">
+    <!-- Admin -->
+    <rect x="150" y="70" width="180" height="80" rx="10" ry="10" fill="#ff9e80" stroke="#e65100" stroke-width="2" />
+    <text x="240" y="110" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">管理员</text>
+    <text x="240" y="130" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">系统管理和配置</text>
+    
+    <!-- User/Developer -->
+    <rect x="470" y="70" width="180" height="80" rx="10" ry="10" fill="#90caf9" stroke="#1976d2" stroke-width="2" />
+    <text x="560" y="110" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">用户（开发者）</text>
+    <text x="560" y="130" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">使用和调用接口</text>
+  </g>
+  
+  <!-- Frontend Layer -->
+  <g id="frontend-layer">
+    <!-- Admin System -->
+    <rect x="100" y="180" width="280" height="110" rx="10" ry="10" fill="#ffcc80" stroke="#ef6c00" stroke-width="2" />
+    <text x="240" y="210" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">后台管理系统</text>
+    <rect x="120" y="220" width="240" height="60" rx="5" ry="5" fill="#fff3e0" stroke="#ffcc80" stroke-width="1" />
+    <text x="140" y="240" font-family="Arial" font-size="12" fill="#333">• 接口管理（发布/下线/设置）</text>
+    <text x="140" y="260" font-family="Arial" font-size="12" fill="#333">• 统计分析</text>
+    
+    <!-- User Frontend -->
+    <rect x="420" y="180" width="280" height="110" rx="10" ry="10" fill="#81d4fa" stroke="#0288d1" stroke-width="2" />
+    <text x="560" y="210" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">用户前台</text>
+    <rect x="440" y="220" width="240" height="60" rx="5" ry="5" fill="#e1f5fe" stroke="#81d4fa" stroke-width="1" />
+    <text x="460" y="240" font-family="Arial" font-size="12" fill="#333">• 浏览接口</text>
+    <text x="460" y="260" font-family="Arial" font-size="12" fill="#333">• 开通/调用接口</text>
+  </g>
+  
+  <!-- Client SDK -->
+  <g id="sdk-layer">
+    <rect x="420" y="310" width="280" height="80" rx="10" ry="10" fill="#b39ddb" stroke="#512da8" stroke-width="2" />
+    <text x="560" y="345" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">客户端调用SDK</text>
+    <text x="560" y="365" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">提供工具类源码包</text>
+  </g>
+  
+  <!-- API Gateway Layer -->
+  <rect x="100" y="420" width="600" height="160" rx="10" ry="10" fill="#80deea" stroke="#0097a7" stroke-width="2" />
+  <text x="400" y="450" font-family="Arial" font-size="20" font-weight="bold" text-anchor="middle" fill="#333">API网关</text>
+  
+  <!-- API Gateway Features -->
+  <g id="api-gateway-features">
+    <rect x="120" y="470" width="130" height="90" rx="5" ry="5" fill="#e0f7fa" stroke="#80deea" stroke-width="1" />
+    <text x="185" y="490" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#333">统计与计费</text>
+    <text x="130" y="510" font-family="Arial" font-size="11" fill="#333">• 统计次数</text>
+    <text x="130" y="530" font-family="Arial" font-size="11" fill="#333">• 计费</text>
+    
+    <rect x="260" y="470" width="130" height="90" rx="5" ry="5" fill="#e0f7fa" stroke="#80deea" stroke-width="1" />
+    <text x="325" y="490" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#333">接口保护与管理</text>
+    <text x="270" y="510" font-family="Arial" font-size="11" fill="#333">• 接口保护</text>
+    <text x="270" y="530" font-family="Arial" font-size="11" fill="#333">• 日志记录</text>
+    
+    <rect x="400" y="470" width="130" height="90" rx="5" ry="5" fill="#e0f7fa" stroke="#80deea" stroke-width="1" />
+    <text x="465" y="490" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#333">路由与安全</text>
+    <text x="410" y="510" font-family="Arial" font-size="11" fill="#333">• 路由</text>
+    <text x="410" y="530" font-family="Arial" font-size="11" fill="#333">• 鉴权认证</text>
+    
+    <rect x="540" y="470" width="130" height="90" rx="5" ry="5" fill="#e0f7fa" stroke="#80deea" stroke-width="1" />
+    <text x="605" y="490" font-family="Arial" font-size="12" font-weight="bold" text-anchor="middle" fill="#333">性能优化</text>
+    <text x="550" y="510" font-family="Arial" font-size="11" fill="#333">• 跨域支持</text>
+    <text x="550" y="530" font-family="Arial" font-size="11" fill="#333">• 缓存</text>
+    <text x="550" y="550" font-family="Arial" font-size="11" fill="#333">• 流量染色</text>
+  </g>
+  
+  <!-- Mock Interface Layer -->
+  <g id="mock-layer">
+    <rect x="470" y="610" width="230" height="90" rx="10" ry="10" fill="#a5d6a7" stroke="#388e3c" stroke-width="2" />
+    <text x="585" y="645" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">模拟接口</text>
+    <text x="585" y="670" font-family="Arial" font-size="12" text-anchor="middle" fill="#333">提供随机头像等模拟服务</text>
+    <text x="585" y="690" font-family="Arial" font-size="10" font-style="italic" text-anchor="middle" fill="#333">示例：leng.cn/img</text>
+  </g>
+  
+  <!-- Database Layer -->
+  <g id="database-layer">
+    <rect x="100" y="610" width="330" height="140" rx="10" ry="10" fill="#ffab91" stroke="#d84315" stroke-width="2" />
+    <text x="265" y="640" font-family="Arial" font-size="18" font-weight="bold" text-anchor="middle" fill="#333">数据库</text>
+    
+    <rect x="120" y="650" width="290" height="90" rx="5" ry="5" fill="#fbe9e7" stroke="#ffab91" stroke-width="1" />
+    <text x="140" y="670" font-family="Arial" font-size="12" fill="#333">• 存储接口信息</text>
+    <text x="140" y="690" font-family="Arial" font-size="12" fill="#333">• 用户数据管理</text>
+    <text x="140" y="710" font-family="Arial" font-size="12" fill="#333">• 统计信息</text>
+    <text x="140" y="730" font-family="Arial" font-size="12" fill="#333">• 用户注册功能</text>
+  </g>
+  
+  <!-- Arrows and Connections -->
+  <!-- User to Frontend -->
+  <path d="M240,150 L240,180" stroke="#e65100" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M560,150 L560,180" stroke="#1976d2" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <!-- User Frontend to SDK -->
+  <path d="M560,290 L560,310" stroke="#0288d1" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <!-- Frontend to API Gateway -->
+  <path d="M240,290 L240,420" stroke="#ef6c00" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M560,390 L560,420" stroke="#512da8" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <!-- API Gateway to Resources -->
+  <path d="M300,580 L300,610" stroke="#0097a7" stroke-width="2" marker-end="url(#arrowhead)" />
+  <path d="M500,580 L500,610" stroke="#0097a7" stroke-width="2" marker-end="url(#arrowhead)" />
+  
+  <!-- Arrow Definitions -->
+  <defs>
+    <marker id="arrowhead" markerWidth="10" markerHeight="7" refX="9" refY="3.5" orient="auto">
+      <polygon points="0 0, 10 3.5, 0 7" />
+    </marker>
+  </defs>
+  
+  <!-- Bidirectional Arrows -->
+  <line x1="265" y1="610" x2="400" y2="580" stroke="#d84315" stroke-width="2" stroke-dasharray="5,3" />
+  <line x1="585" y1="610" x2="500" y2="580" stroke="#388e3c" stroke-width="2" stroke-dasharray="5,3" />
+  
+  <!-- Legend -->
+  <rect x="600" y="750" width="180" height="80" rx="5" ry="5" fill="#ffffff" stroke="#333333" stroke-width="1" />
+  <text x="690" y="770" font-family="Arial" font-size="14" font-weight="bold" text-anchor="middle" fill="#333">图例</text>
+  <rect x="610" y="780" width="15" height="15" fill="#ff9e80" stroke="#e65100" stroke-width="1" />
+  <text x="635" y="792" font-family="Arial" font-size="12" fill="#333">用户层</text>
+  <rect x="690" y="780" width="15" height="15" fill="#80deea" stroke="#0097a7" stroke-width="1" />
+  <text x="715" y="792" font-family="Arial" font-size="12" fill="#333">服务层</text>
+  <rect x="610" y="805" width="15" height="15" fill="#ffab91" stroke="#d84315" stroke-width="1" />
+  <text x="635" y="817" font-family="Arial" font-size="12" fill="#333">数据层</text>
+  <rect x="690" y="805" width="15" height="15" fill="#a5d6a7" stroke="#388e3c" stroke-width="1" />
+  <text x="715" y="817" font-family="Arial" font-size="12" fill="#333">接口层</text>
+</svg> 

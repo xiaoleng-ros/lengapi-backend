@@ -51,7 +51,7 @@
 
 ## 项目流程 🗺️
 
-![API 接口开放平台](src/main/resources/JiaGou.png)
+![API 接口开放平台](src/main/resources/JiaGou.jpg)
 
 ## 快速启动 🚀
 

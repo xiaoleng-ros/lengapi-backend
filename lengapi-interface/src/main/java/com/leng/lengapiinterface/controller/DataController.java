@@ -1,8 +1,9 @@
 package com.leng.lengapiinterface.controller;
 
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import cn.hutool.json.JSONUtil;
+import com.leng.lengapiclientsdk.model.params.NameParams;
+import com.leng.lengapiclientsdk.model.response.NameResponse;
+import org.springframework.web.bind.annotation.*;
 
 import static com.leng.lengapiinterface.utils.RequestUtils.get;
 
@@ -15,6 +16,13 @@ import static com.leng.lengapiinterface.utils.RequestUtils.get;
 @RestController
 @RequestMapping("/")
 public class DataController {
+
+    @PostMapping("/name")
+    public NameResponse getName(@RequestBody NameParams nameParams) {
+        NameResponse response = new NameResponse();
+        response.setUsername(nameParams.getUsername());
+        return response;
+    }
 
     @GetMapping("/loveTalk")
     public String randomLoveTalk() {

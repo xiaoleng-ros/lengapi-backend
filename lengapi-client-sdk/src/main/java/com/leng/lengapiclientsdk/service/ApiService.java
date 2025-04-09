@@ -27,7 +27,7 @@ public interface ApiService {
     /**
      * 通用请求
      *
-     * @param lengApiClient qi api客户端
+     * @param lengApiClient leng api客户端
      * @param request     要求
      * @return {@link T}
      * @throws ApiException 业务异常
@@ -45,7 +45,7 @@ public interface ApiService {
     /**
      * 随意情话
      *
-     * @param lengApiClient qi api客户端
+     * @param lengApiClient leng api客户端
      * @return {@link LoveResponse}
      * @throws ApiException 业务异常
      */
@@ -62,7 +62,7 @@ public interface ApiService {
     /**
      * 喝毒鸡汤
      *
-     * @param lengApiClient qi api客户端
+     * @param lengApiClient leng api客户端
      * @return {@link PoisonousChickenSoupResponse}
      * @throws ApiException 业务异常
      */
