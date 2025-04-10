@@ -32,6 +32,7 @@ import java.util.Map;
 public abstract class BaseService implements ApiService {
 
     private LengApiClient lengApiClient;
+
     /**
      * 网关HOST
      */
@@ -162,9 +163,12 @@ public abstract class BaseService implements ApiService {
     private <O, T extends ResultResponse> String splicingGetRequest(BaseRequest<O, T> request, String path) {
         // 如果 path 已经是完整 URL（如从数据库读取的 url 字段），直接使用
         if (path.startsWith("http://") || path.startsWith("https://")) {
-            return path; // 避免重复拼接 gatewayHost
+            // 如果 path 是完整 URL，但不是网关的 URL，重新拼接
+            if (!path.startsWith(gatewayHost)) {
+                return gatewayHost + path.substring(path.indexOf("/", 8));
+            }
+            return path;
         }
-
         // 否则，拼接 gatewayHost 和 path
         StringBuilder urlBuilder = new StringBuilder(gatewayHost);
         if (!gatewayHost.endsWith("/") && !path.startsWith("/")) {
@@ -185,7 +189,6 @@ public abstract class BaseService implements ApiService {
             }
             urlBuilder.deleteCharAt(urlBuilder.length() - 1); // 删除末尾的 &
         }
-
         log.info("修正后的 GET 请求路径：{}", urlBuilder);
         return urlBuilder.toString();
     }
