@@ -8,7 +8,6 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.constant.CommonConstant;
-import com.leng.project.constant.UserConstant;
 import com.leng.project.exception.BusinessException;
 import com.leng.project.mapper.UserMapper;
 import com.leng.project.model.dto.user.UserQueryRequest;
@@ -21,8 +20,9 @@ import com.leng.project.utils.SqlUtils;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.util.DigestUtils;
 
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
@@ -38,10 +38,7 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
-    /**
-     * 盐值，混淆密码
-     */
-    public static final String SALT = "xiaoleng";
+    private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
 
     /**
      * 用户注册
@@ -79,10 +76,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
             // 2. 加密
-            String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
+            String encryptPassword = passwordEncoder.encode(userPassword);
             // 3.分配 accessKey、secretKey
-            String accessKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(5));
-            String secretKey = DigestUtil.md5Hex(SALT + userAccount + RandomUtil.randomNumbers(8));
+            String accessKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(5));
+            String secretKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(8));
             // 4. 插入数据
             User user = new User();
             user.setUserName(userName);
@@ -117,15 +114,12 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
-        // 2. 加密
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + userPassword).getBytes());
-        // 查询用户是否存在
+        // 2. 查询用户是否存在
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
-        queryWrapper.eq("userPassword", encryptPassword);
         User user = this.baseMapper.selectOne(queryWrapper);
-        // 用户不存在
-        if (user == null) {
+        // 用户不存在或密码错误
+        if (user == null || !passwordEncoder.matches(userPassword, user.getUserPassword())) {
             log.info("user login failed, userAccount cannot match userPassword");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }

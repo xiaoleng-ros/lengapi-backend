@@ -17,6 +17,7 @@ import com.leng.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.util.DigestUtils;
 import org.springframework.web.bind.annotation.*;
 
@@ -26,7 +27,6 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-import static com.leng.project.service.impl.UserServiceImpl.SALT;
 
 /**
  * 用户接口
@@ -131,7 +131,8 @@ public class UserController {
         BeanUtils.copyProperties(userAddRequest, user);
         // 默认密码 123456789
         String defaultPassword = "123456789";
-        String encryptPassword = DigestUtils.md5DigestAsHex((SALT + defaultPassword).getBytes());
+        BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+        String encryptPassword = passwordEncoder.encode(defaultPassword);
         user.setUserPassword(encryptPassword);
         boolean result = userService.save(user);
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
