@@ -29,10 +29,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-
 /**
  * 用户服务实现
- *
  */
 @Service
 @Slf4j
@@ -42,16 +40,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 用户注册
-     * @param userName      用户昵称
-     * @param userAccount   用户账户
-     * @param userPassword  用户密码
-     * @param checkPassword 校验密码
-     * @return
      */
     @Override
     public long userRegister(String userName, String userAccount, String userPassword, String checkPassword) {
-        // 1. 校验
-        if (StringUtils.isAnyBlank(userName,userAccount, userPassword, checkPassword)) {
+        // 校验参数
+        if (StringUtils.isAnyBlank(userName, userAccount, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         if (userName.length() > 6) {
@@ -63,24 +56,27 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8 || checkPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
         }
-        // 密码和校验密码相同
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
+
         synchronized (userAccount.intern()) {
-            // 账户不能重复
+            // 检查账号是否重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
             queryWrapper.eq("userAccount", userAccount);
             long count = this.baseMapper.selectCount(queryWrapper);
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
-            // 2. 加密
+
+            // 加密密码
             String encryptPassword = passwordEncoder.encode(userPassword);
-            // 3.分配 accessKey、secretKey
+
+            // 生成 accessKey 和 secretKey
             String accessKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(5));
             String secretKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(8));
-            // 4. 插入数据
+
+            // 插入用户数据
             User user = new User();
             user.setUserName(userName);
             user.setUserAccount(userAccount);
@@ -97,14 +93,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 用户登录
-     * @param userAccount  用户账户
-     * @param userPassword 用户密码
-     * @return
-     * // todo: 修改使用Sa-Token
      */
     @Override
     public LoginUserVO userLogin(String userAccount, String userPassword) {
-        // 1. 校验
+        // 校验参数
         if (StringUtils.isAnyBlank(userAccount, userPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
@@ -114,107 +106,89 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
-        // 2. 查询用户是否存在
+
+        // 查询用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         User user = this.baseMapper.selectOne(queryWrapper);
-        // 用户不存在或密码错误
+
+        // 验证用户和密码
         if (user == null || !passwordEncoder.matches(userPassword, user.getUserPassword())) {
-            log.info("user login failed, userAccount cannot match userPassword");
+            log.info("用户登录失败，账号或密码错误");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-        // 3. 生成 JWT 令牌
+
+        // 生成 JWT 令牌
         String token = JwtUtils.generateToken(userAccount);
-        // 4. 返回登录用户信息和令牌
+
+        // 返回登录用户信息和令牌
         LoginUserVO loginUserVO = this.getLoginUserVO(user);
-        loginUserVO.setToken(token); // 设置令牌
+        loginUserVO.setToken(token);
         return loginUserVO;
     }
 
     /**
      * 获取当前登录用户
-     *
-     * @param request
-     * @return
      */
     @Override
     public User getLoginUser(HttpServletRequest request) {
-        // 从请求头中获取 JWT 令牌
+        // 获取 JWT 令牌
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // 去掉前缀 "Bearer "
-            // 验证 JWT 令牌
-            String userAccount = JwtUtils.validateToken(token);
-            if (userAccount != null) {
-                // 根据 userAccount 查询用户信息
-                QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("userAccount", userAccount);
-                User user = this.baseMapper.selectOne(queryWrapper);
-                if (user != null) {
-                    return user;
-                }
-            }
+            token = token.substring(7);
         }
-        // 如果没有有效的令牌或用户不存在，抛出未登录异常
-        throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+
+        // 验证令牌
+        String userAccount = JwtUtils.validateToken(token);
+        if (userAccount == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+        }
+
+        // 查询用户
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        User user = this.baseMapper.selectOne(queryWrapper);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户不存在");
+        }
+        return user;
     }
 
     /**
      * 获取当前登录用户（允许未登录）
-     *
-     * @param request
-     * @return
      */
     @Override
     public User getLoginUserPermitNull(HttpServletRequest request) {
-        // 从请求头中获取 JWT 令牌
+        // 获取 JWT 令牌
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // 去掉前缀 "Bearer "
-            // 验证 JWT 令牌
-            String userAccount = JwtUtils.validateToken(token);
-            if (userAccount != null) {
-                // 根据 userAccount 查询用户信息
-                QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("userAccount", userAccount);
-                User user = this.baseMapper.selectOne(queryWrapper);
-                if (user != null) {
-                    return user;
-                }
-            }
+            token = token.substring(7);
         }
-        // 如果没有有效的令牌或用户不存在，返回 null
-        return null;
+
+        // 验证令牌
+        String userAccount = JwtUtils.validateToken(token);
+        if (userAccount == null) {
+            return null;
+        }
+
+        // 查询用户
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        return this.baseMapper.selectOne(queryWrapper);
     }
 
     /**
      * 是否为管理员
-     *
-     * @param request
-     * @return
      */
     @Override
     public boolean isAdmin(HttpServletRequest request) {
-        // 从请求头中获取 JWT 令牌
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // 去掉前缀 "Bearer "
-            // 验证 JWT 令牌
-            String userAccount = JwtUtils.validateToken(token);
-            if (userAccount != null) {
-                // 根据 userAccount 查询用户信息
-                QueryWrapper<User> queryWrapper = new QueryWrapper<>();
-                queryWrapper.eq("userAccount", userAccount);
-                User user = this.baseMapper.selectOne(queryWrapper);
-                if (user != null) {
-                    // 判断是否为管理员
-                    return UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
-                }
-            }
-        }
-        return false;
+        User user = getLoginUserPermitNull(request);
+        return isAdmin(user);
     }
 
+    /**
+     * 是否为管理员
+     */
     @Override
     public boolean isAdmin(User user) {
         return user != null && UserRoleEnum.ADMIN.getValue().equals(user.getUserRole());
@@ -222,31 +196,24 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 用户注销
-     *
-     * @param request
-     * @return
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        // 从请求头中获取 JWT 令牌
+        // 记录注销操作
         String token = request.getHeader("Authorization");
         if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7); // 去掉前缀 "Bearer "
-            // 验证 JWT 令牌
-            String userAccount = JwtUtils.validateToken(token);
-            if (userAccount != null) {
-                // 可以选择记录注销操作，但 JWT 本身是无状态的，服务器不需要维护会话状态
-                log.info("User logged out: {}", userAccount);
-                return true;
-            }
+            token = token.substring(7);
+        }
+        String userAccount = JwtUtils.validateToken(token);
+        if (userAccount != null) {
+            log.info("用户注销成功，账号：{}", userAccount);
+            return true;
         }
         return false;
     }
 
     /**
      * 获取登录用户视图对象
-     * @param user
-     * @return
      */
     @Override
     public LoginUserVO getLoginUserVO(User user) {
@@ -260,8 +227,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取用户视图对象
-     * @param user
-     * @return
      */
     @Override
     public UserVO getUserVO(User user) {
@@ -275,8 +240,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
 
     /**
      * 获取用户视图对象列表
-     * @param userList
-     * @return
      */
     @Override
     public List<UserVO> getUserVO(List<User> userList) {
@@ -287,9 +250,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 根据传入的查询请求对象
-     * @param userQueryRequest
-     * @return
+     * 获取查询条件
      */
     @Override
     public QueryWrapper<User> getQueryWrapper(UserQueryRequest userQueryRequest) {
@@ -305,38 +266,36 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.eq(id != null, "id", id);
         queryWrapper.eq(StringUtils.isNotBlank(userRole), "userRole", userRole);
         queryWrapper.like(StringUtils.isNotBlank(userName), "userName", userName);
-        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC),
-                sortField);
+        queryWrapper.orderBy(SqlUtils.validSortField(sortField), sortOrder.equals(CommonConstant.SORT_ORDER_ASC), sortField);
         return queryWrapper;
     }
 
     /**
      * 用户头像上传
-     * @param id
-     * @param fileUrl
      */
     @Override
     public void updateUserAvatar(Long id, String fileUrl) {
-        // 1. 校验
+        // 1.校验参数
         if (id == null || StringUtils.isBlank(fileUrl)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-        // 校验头像 URL 格式
+
+        // 2.校验头像 URL 格式
         if (!fileUrl.startsWith("http://") && !fileUrl.startsWith("https://")) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像 URL 格式错误");
         }
-        // 2. 查询用户是否存在
+
+        // 3.查询用户
         User user = this.getById(id);
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
         }
-        // 3. 更新头像
+
+        // 4.更新头像
         user.setUserAvatar(fileUrl);
         boolean updateResult = this.updateById(user);
         if (!updateResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新头像失败");
         }
-        // 4. 记录日志
-        log.info("用户头像更新成功，userId：{}, fileUrl：{}", id, fileUrl);
     }
 }

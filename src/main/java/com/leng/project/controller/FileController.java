@@ -18,12 +18,12 @@ import com.leng.project.model.enums.FileUploadBizEnum;
 import com.leng.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
+import org.apache.commons.lang3.StringUtils;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 /**
  * 文件接口
- *
  */
 @RestController
 @RequestMapping("/file")
@@ -38,70 +38,92 @@ public class FileController {
 
     /**
      * 文件上传
-     *
-     * @param multipartFile
-     * @param uploadFileRequest
-     * @param request
-     * @return
      */
     @PostMapping("/upload")
     public BaseResponse<String> uploadFile(
             @RequestParam("file") MultipartFile multipartFile,
-            UploadFileRequest uploadFileRequest, HttpServletRequest request) {
-        String biz = uploadFileRequest.getBiz();
+            @RequestParam("biz") String biz,
+            HttpServletRequest request) {
+        // 校验业务类型
         FileUploadBizEnum fileUploadBizEnum = FileUploadBizEnum.getEnumByValue(biz);
         if (fileUploadBizEnum == null) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "业务类型不支持");
         }
+
+        // 校验文件
         validFile(multipartFile, fileUploadBizEnum);
+
+        // 获取当前登录用户
         User loginUser = userService.getLoginUser(request);
-        // 文件目录：根据业务、用户来划分
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
+        }
+
+        // 生成文件名
+        String timestamp = String.valueOf(System.currentTimeMillis());
         String uuid = RandomStringUtils.randomAlphanumeric(8);
-        String filename = uuid + "-" + multipartFile.getOriginalFilename();
+        String originalFilename = multipartFile.getOriginalFilename();
+        String filename = timestamp + "-" + uuid + "-" + originalFilename;
+
+        // 生成文件路径
         String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), loginUser.getId(), filename);
+
         File file = null;
         try {
-            // 上传文件
+            // 检查文件是否为空
+            if (multipartFile.isEmpty()) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件内容为空");
+            }
+
+            // 上传文件到临时目录
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
+
+            // 上传到对象存储
             cosManager.putObject(filepath, file);
+
             // 返回可访问地址
             String fileUrl = FileConstant.COS_HOST + filepath;
-            // 更新用户头像
-            userService.updateUserAvatar(loginUser.getId(), fileUrl);
+
+            // 如果是用户头像业务类型，更新用户头像
+            if (FileUploadBizEnum.USER_AVATAR.equals(fileUploadBizEnum)) {
+                userService.updateUserAvatar(loginUser.getId(), fileUrl);
+            }
+
             return ResultUtils.success(fileUrl);
         } catch (Exception e) {
-            log.error("file upload error, filepath = {}", filepath, e);
+            log.error("文件上传失败，filepath = {}, error = {}", filepath, e.getMessage(), e);
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "上传失败");
         } finally {
-            if (file != null) {
-                // 删除临时文件
-                boolean delete = file.delete();
-                if (!delete) {
-                    log.error("file delete error, filepath = {}", filepath);
-                }
+            // 删除临时文件
+            if (file != null && !file.delete()) {
+                log.error("临时文件删除失败，filepath = {}", filepath);
             }
         }
     }
 
     /**
      * 校验文件
-     *
-     * @param multipartFile
-     * @param fileUploadBizEnum 业务类型
      */
     private void validFile(MultipartFile multipartFile, FileUploadBizEnum fileUploadBizEnum) {
-        // 文件大小
+        // 文件名为空或没有后缀
+        String originalFilename = multipartFile.getOriginalFilename();
+        if (originalFilename == null || originalFilename.isEmpty()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件名不能为空");
+        }
+        String fileSuffix = FileUtil.getSuffix(originalFilename);
+
+        // 文件大小校验
         long fileSize = multipartFile.getSize();
-        // 文件后缀
-        String fileSuffix = FileUtil.getSuffix(multipartFile.getOriginalFilename());
-        final long ONE_M = 1024 * 1024L * 2;
+        final long MAX_FILE_SIZE = 1024 * 1024L * 2; // 2MB
+
+        // 根据业务类型校验文件
         if (FileUploadBizEnum.USER_AVATAR.equals(fileUploadBizEnum)) {
-            if (fileSize > ONE_M) {
+            if (fileSize > MAX_FILE_SIZE) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件大小不能超过 2M");
             }
-            if (!Arrays.asList("jpeg", "jpg", "svg", "png", "webp").contains(fileSuffix)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误");
+            if (!Arrays.asList("jpeg", "jpg", "png", "webp").contains(fileSuffix)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件类型错误，仅支持图片");
             }
         }
     }
