@@ -14,6 +14,7 @@ public class FileConstant {
 
     /**
      * 腾讯云COS 访问地址
+     *
      */
     @Value("${file.cos.host}")
     private String cosHost;

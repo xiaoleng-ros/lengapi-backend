@@ -14,7 +14,7 @@ import java.io.Serializable;
 public class NameParams implements Serializable {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 3815188540434269370L;
 
-    private String username;
+    private String name;
 }

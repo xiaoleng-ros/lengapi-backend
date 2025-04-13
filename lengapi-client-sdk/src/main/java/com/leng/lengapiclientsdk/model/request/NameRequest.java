@@ -29,7 +29,7 @@ public class NameRequest extends BaseRequest<NameParams, NameResponse> {
 
     @Override
     public String getMethod() {
-        return RequestMethodEnum.POST.getValue(); // 必须返回POST
+        return RequestMethodEnum.GET.getValue();
     }
 
 }

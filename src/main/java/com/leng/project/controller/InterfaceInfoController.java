@@ -289,18 +289,28 @@ public class InterfaceInfoController {
             // 返回接口已关闭的错误响应
             return new BaseResponse<>(ErrorCode.PARAMS_ERROR.getCode(), null, "接口已关闭");
         }
-        // 构建请求参数
-        List<InterfaceInfoInvokeRequest.Field> fieldList = interfaceInfoInvokeRequest.getRequestParams();
-        String requestParams = "{}";
-        if (fieldList != null && !fieldList.isEmpty()) {
-            JsonObject jsonObject = new JsonObject();
-            for (InterfaceInfoInvokeRequest.Field field : fieldList) {
-                jsonObject.addProperty(field.getFieldName(), field.getValue());
+        
+        // 构建请求参数，优先使用 userRequestParams
+        Map<String, Object> params;
+        if (StringUtils.isNotBlank(interfaceInfoInvokeRequest.getUserRequestParams())) {
+            // 优先使用 userRequestParams
+            log.info("使用用户传入的参数: {}", interfaceInfoInvokeRequest.getUserRequestParams());
+            params = new Gson().fromJson(interfaceInfoInvokeRequest.getUserRequestParams(), 
+                    new TypeToken<Map<String, Object>>() {}.getType());
+        } else {
+            // 如果没有 userRequestParams，则使用 requestParams
+            List<InterfaceInfoInvokeRequest.Field> fieldList = interfaceInfoInvokeRequest.getRequestParams();
+            String requestParams = "{}";
+            if (fieldList != null && !fieldList.isEmpty()) {
+                JsonObject jsonObject = new JsonObject();
+                for (InterfaceInfoInvokeRequest.Field field : fieldList) {
+                    jsonObject.addProperty(field.getFieldName(), field.getValue());
+                }
+                requestParams = gson.toJson(jsonObject);
             }
-            requestParams = gson.toJson(jsonObject);
+            params = new Gson().fromJson(requestParams, new TypeToken<Map<String, Object>>() {}.getType());
         }
-        Map<String, Object> params = new Gson().fromJson(requestParams, new TypeToken<Map<String, Object>>() {
-        }.getType());
+        
         // 获取登录用户信息
         User loginUser = userService.getLoginUser(request);
         String accessKey = loginUser.getAccessKey();

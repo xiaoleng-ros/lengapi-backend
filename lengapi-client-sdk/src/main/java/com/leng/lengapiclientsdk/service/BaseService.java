@@ -164,11 +164,42 @@ public abstract class BaseService implements ApiService {
         // 如果 path 已经是完整 URL（如从数据库读取的 url 字段），直接使用
         if (path.startsWith("http://") || path.startsWith("https://")) {
             // 如果 path 是完整 URL，但不是网关的 URL，重新拼接
+            String apiPath;
             if (!path.startsWith(gatewayHost)) {
-                return gatewayHost + path.substring(path.indexOf("/", 8));
+                apiPath = gatewayHost + path.substring(path.indexOf("/", 8));
+            } else {
+                apiPath = path;
             }
-            return path;
+            
+            // 添加查询参数到 URL
+            if (!request.getRequestParams().isEmpty()) {
+                StringBuilder urlBuilder = new StringBuilder(apiPath);
+                urlBuilder.append(apiPath.contains("?") ? "&" : "?");
+                
+                for (Map.Entry<String, Object> entry : request.getRequestParams().entrySet()) {
+                    if (entry.getValue() != null) {
+                        // 使用 URI 编码处理参数值，避免特殊字符问题
+                        String encodedValue = java.net.URLEncoder.encode(String.valueOf(entry.getValue()), 
+                                java.nio.charset.StandardCharsets.UTF_8);
+                        urlBuilder.append(entry.getKey())
+                                .append("=")
+                                .append(encodedValue)
+                                .append("&");
+                    }
+                }
+                // 删除末尾的 &
+                if (urlBuilder.charAt(urlBuilder.length() - 1) == '&') {
+                    urlBuilder.deleteCharAt(urlBuilder.length() - 1);
+                }
+                
+                String finalUrl = urlBuilder.toString();
+                log.info("修正后的 GET 请求完整路径：{}", finalUrl);
+                return finalUrl;
+            }
+            
+            return apiPath;
         }
+        
         // 否则，拼接 gatewayHost 和 path
         StringBuilder urlBuilder = new StringBuilder(gatewayHost);
         if (!gatewayHost.endsWith("/") && !path.startsWith("/")) {
@@ -180,17 +211,28 @@ public abstract class BaseService implements ApiService {
 
         // 添加查询参数
         if (!request.getRequestParams().isEmpty()) {
-            urlBuilder.append("?");
+            urlBuilder.append(urlBuilder.toString().contains("?") ? "&" : "?");
+            
             for (Map.Entry<String, Object> entry : request.getRequestParams().entrySet()) {
-                urlBuilder.append(entry.getKey())
-                        .append("=")
-                        .append(entry.getValue())
-                        .append("&");
+                if (entry.getValue() != null) {
+                    // 使用 URI 编码处理参数值，避免特殊字符问题
+                    String encodedValue = java.net.URLEncoder.encode(String.valueOf(entry.getValue()), 
+                            java.nio.charset.StandardCharsets.UTF_8);
+                    urlBuilder.append(entry.getKey())
+                            .append("=")
+                            .append(encodedValue)
+                            .append("&");
+                }
             }
-            urlBuilder.deleteCharAt(urlBuilder.length() - 1); // 删除末尾的 &
+            // 删除末尾的 &
+            if (urlBuilder.charAt(urlBuilder.length() - 1) == '&') {
+                urlBuilder.deleteCharAt(urlBuilder.length() - 1);
+            }
         }
-        log.info("修正后的 GET 请求路径：{}", urlBuilder);
-        return urlBuilder.toString();
+        
+        String finalUrl = urlBuilder.toString();
+        log.info("修正后的 GET 请求路径：{}", finalUrl);
+        return finalUrl;
     }
 
     /**

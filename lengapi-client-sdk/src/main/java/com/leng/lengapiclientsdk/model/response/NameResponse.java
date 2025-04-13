@@ -13,7 +13,7 @@ import java.io.Serial;
 public class NameResponse extends ResultResponse {
 
     @Serial
-    private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = -1038984103811824271L;
 
-    private String username;
+    private String name;
 }
