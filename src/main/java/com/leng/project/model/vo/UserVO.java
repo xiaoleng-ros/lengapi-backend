@@ -39,6 +39,16 @@ public class UserVO implements Serializable {
     private String userRole;
 
     /**
+     * 签名 accessKey
+     */
+    private String accessKey;
+
+    /**
+     * 签名 secretKey
+     */
+    private String secretKey;
+
+    /**
      * 账号状态（0- 正常 1- 封号）
      */
     private Integer status;
