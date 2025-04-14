@@ -6,9 +6,11 @@ import com.leng.lengapiclientsdk.exception.ErrorCode;
 import lombok.extern.slf4j.Slf4j;
 
 import java.lang.reflect.Field;
+import java.util.HashMap;
+import java.util.Map;
 
 /**
- *
+ * 请求工具类
  */
 @Slf4j
 public class RequestUtils {
@@ -49,6 +51,7 @@ public class RequestUtils {
         return url.toString();
     }
 
+
     /**
      * get请求
      *
@@ -72,4 +75,38 @@ public class RequestUtils {
         log.info("【interface】：请求地址：{}，响应数据：{}", url, body);
         return body;
     }
+
+    /**
+     * 验证手机号
+     *
+     * @param phone 手机号
+     * @return 验证结果
+     */
+    public static Map<String, Object> validatePhone(String phone) {
+        Map<String, Object> result = new HashMap<>();
+        if (phone == null || phone.isEmpty()) {
+            result.put("success", false);
+            result.put("message", "手机号不能为空");
+            return result;
+        }
+        if (!phone.matches("^1[3-9]\\d{9}$")) {
+            result.put("success", false);
+            result.put("message", "手机号格式错误");
+            return result;
+        }
+        result.put("success", true);
+        return result;
+    }
+
+    /**
+     * 拼接手机号到URL
+     *
+     * @param baseUrl 基本url
+     * @param phone   手机号
+     * @return 拼接后的URL
+     */
+    public static String buildPhoneUrl(String baseUrl, String phone) {
+        return baseUrl + phone;
+    }
+
 }

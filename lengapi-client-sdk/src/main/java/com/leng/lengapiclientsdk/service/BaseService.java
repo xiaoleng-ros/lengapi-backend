@@ -1,6 +1,8 @@
 package com.leng.lengapiclientsdk.service;
 
 import cn.hutool.crypto.SecureUtil;
+import cn.hutool.json.JSONArray;
+import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
 import com.google.gson.Gson;
 import com.google.gson.JsonSyntaxException;
@@ -135,18 +137,47 @@ public abstract class BaseService implements ApiService {
         HttpResponse<String> httpResponse = doRequest(request);
         String body = httpResponse.body();
         Map<String, Object> data = new HashMap<>();
+        // 打印返回的原始内容
+        log.info("接口返回内容: {}", body);
         if (httpResponse.statusCode() != 200) {
-            ErrorResponse errorResponse = JSONUtil.toBean(body, ErrorResponse.class);
-            data.put("errorMessage", errorResponse.getMessage());
-            data.put("code", errorResponse.getCode());
-        } else {
             try {
-                // 尝试解析为JSON对象
-                data = new Gson().fromJson(body, new TypeToken<Map<String, Object>>() {
-                }.getType());
-            } catch (JsonSyntaxException e) {
-                // 解析失败，将body作为普通字符串处理
-                data.put("value", body);
+                ErrorResponse errorResponse = JSONUtil.toBean(body, ErrorResponse.class);
+                data.put("errorMessage", errorResponse.getMessage());
+                data.put("code", errorResponse.getCode());
+            } catch (Exception e) {
+                // 如果无法解析为ErrorResponse，直接返回原始错误信息
+                data.put("errorMessage", "请求失败: " + body);
+                data.put("code", httpResponse.statusCode());
+            }
+        } else {
+            // 检查返回的内容是否是有效的JSON
+            if (body != null && !body.trim().isEmpty()) {
+                try {
+                    // 尝试解析为JSON对象
+                    if (body.trim().startsWith("{")) {
+                        JSONObject jsonResponse = new JSONObject(body);
+                        // 将整个JSON对象直接添加到data中
+                        for (String key : jsonResponse.keySet()) {
+                            data.put(key, jsonResponse.get(key));
+                        }
+                    } else if (body.trim().startsWith("[")) {
+                        // 处理JSON数组
+                        JSONArray jsonArray = new JSONArray(body);
+                        // 为了保持与之前接口的兼容性，将数组作为"data"字段的值
+                        data.put("data", jsonArray);
+                    } else {
+                        // 非JSON格式，作为普通文本处理
+                        data.put("value", body);
+                    }
+                } catch (Exception e) {
+                    // 捕获所有JSON解析相关的异常，包括JsonSyntaxException等
+                    log.warn("解析JSON失败: {}", e.getMessage());
+                    // 解析失败，将body作为普通字符串处理
+                    data.put("value", body);
+                }
+            } else {
+                // 空响应
+                data.put("value", "");
             }
         }
         rsp.setData(data);
@@ -170,16 +201,14 @@ public abstract class BaseService implements ApiService {
             } else {
                 apiPath = path;
             }
-            
             // 添加查询参数到 URL
             if (!request.getRequestParams().isEmpty()) {
                 StringBuilder urlBuilder = new StringBuilder(apiPath);
                 urlBuilder.append(apiPath.contains("?") ? "&" : "?");
-                
                 for (Map.Entry<String, Object> entry : request.getRequestParams().entrySet()) {
                     if (entry.getValue() != null) {
                         // 使用 URI 编码处理参数值，避免特殊字符问题
-                        String encodedValue = java.net.URLEncoder.encode(String.valueOf(entry.getValue()), 
+                        String encodedValue = java.net.URLEncoder.encode(String.valueOf(entry.getValue()),
                                 java.nio.charset.StandardCharsets.UTF_8);
                         urlBuilder.append(entry.getKey())
                                 .append("=")
@@ -191,15 +220,12 @@ public abstract class BaseService implements ApiService {
                 if (urlBuilder.charAt(urlBuilder.length() - 1) == '&') {
                     urlBuilder.deleteCharAt(urlBuilder.length() - 1);
                 }
-                
                 String finalUrl = urlBuilder.toString();
                 log.info("修正后的 GET 请求完整路径：{}", finalUrl);
                 return finalUrl;
             }
-            
             return apiPath;
         }
-        
         // 否则，拼接 gatewayHost 和 path
         StringBuilder urlBuilder = new StringBuilder(gatewayHost);
         if (!gatewayHost.endsWith("/") && !path.startsWith("/")) {
@@ -208,15 +234,13 @@ public abstract class BaseService implements ApiService {
             path = path.substring(1); // 避免双斜杠
         }
         urlBuilder.append(path);
-
         // 添加查询参数
         if (!request.getRequestParams().isEmpty()) {
             urlBuilder.append(urlBuilder.toString().contains("?") ? "&" : "?");
-            
             for (Map.Entry<String, Object> entry : request.getRequestParams().entrySet()) {
                 if (entry.getValue() != null) {
                     // 使用 URI 编码处理参数值，避免特殊字符问题
-                    String encodedValue = java.net.URLEncoder.encode(String.valueOf(entry.getValue()), 
+                    String encodedValue = java.net.URLEncoder.encode(String.valueOf(entry.getValue()),
                             java.nio.charset.StandardCharsets.UTF_8);
                     urlBuilder.append(entry.getKey())
                             .append("=")
@@ -229,7 +253,6 @@ public abstract class BaseService implements ApiService {
                 urlBuilder.deleteCharAt(urlBuilder.length() - 1);
             }
         }
-        
         String finalUrl = urlBuilder.toString();
         log.info("修正后的 GET 请求路径：{}", finalUrl);
         return finalUrl;

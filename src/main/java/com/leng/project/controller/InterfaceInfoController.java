@@ -278,7 +278,6 @@ public class InterfaceInfoController {
             return new BaseResponse<>(ErrorCode.PARAMS_ERROR.getCode(), null, ErrorCode.PARAMS_ERROR.getMessage());
         }
         long id = interfaceInfoInvokeRequest.getId();
-
         // 判断接口是否存在
         InterfaceInfo interfaceInfo = interfaceInfoService.getById(id);
         if (interfaceInfo == null) {
@@ -289,7 +288,6 @@ public class InterfaceInfoController {
             // 返回接口已关闭的错误响应
             return new BaseResponse<>(ErrorCode.PARAMS_ERROR.getCode(), null, "接口已关闭");
         }
-        
         // 构建请求参数，优先使用 userRequestParams
         Map<String, Object> params;
         if (StringUtils.isNotBlank(interfaceInfoInvokeRequest.getUserRequestParams())) {
@@ -310,7 +308,6 @@ public class InterfaceInfoController {
             }
             params = new Gson().fromJson(requestParams, new TypeToken<Map<String, Object>>() {}.getType());
         }
-        
         // 获取登录用户信息
         User loginUser = userService.getLoginUser(request);
         String accessKey = loginUser.getAccessKey();
@@ -327,5 +324,4 @@ public class InterfaceInfoController {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, e.getMessage());
         }
     }
-
 }
