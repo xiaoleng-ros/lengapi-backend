@@ -18,7 +18,7 @@ public interface InnerInterfaceInfoService {
 
     /**
      * 更新接口总调用次数
-     * @param interfaceInfoId 接口ID
+     * @param id 接口ID
      */
-    void addInterfaceTotal(Long interfaceInfoId);
+    void addInterfaceTotal(Long id);
 }

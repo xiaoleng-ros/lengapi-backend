@@ -3,6 +3,7 @@ package com.leng.lengapigateway;
 import com.leng.lengapiclientsdk.utils.SignUtils;
 import com.leng.lengapicommon.model.entity.InterfaceInfo;
 import com.leng.lengapicommon.model.entity.User;
+import com.leng.lengapicommon.model.entity.UserInterfaceInfo;
 import com.leng.lengapicommon.service.InnerInterfaceInfoService;
 import com.leng.lengapicommon.service.InnerUserInterfaceInfoService;
 import com.leng.lengapicommon.service.InnerUserService;
@@ -131,7 +132,7 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     }
 
     public Mono<Void> handleResponse(ServerWebExchange exchange, GatewayFilterChain chain,
-                                     Long interfaceInfoId, Long userId) {
+                                     Long id, Long userId) {
 
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
@@ -146,10 +147,10 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                     return super.writeWith(
                             fluxBody.map(dataBuffer -> {
                                 try {
-                                    // 更新用户调用次数
-                                    innerUserInterfaceInfoService.invokeCount(interfaceInfoId, userId);
+                                    // 更新用户调用剩余次数
+                                    innerUserInterfaceInfoService.invokeCount(userId);
                                     // 更新接口总调用次数
-                                    innerInterfaceInfoService.addInterfaceTotal(interfaceInfoId);
+                                    innerInterfaceInfoService.addInterfaceTotal(id);
                                 } catch (Exception e) {
                                     log.error("更新调用次数失败", e);
                                 }

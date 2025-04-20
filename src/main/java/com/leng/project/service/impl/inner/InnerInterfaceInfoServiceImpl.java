@@ -29,7 +29,7 @@ public class InnerInterfaceInfoServiceImpl implements InnerInterfaceInfoService 
     }
 
     @Override
-    public void addInterfaceTotal(Long interfaceInfoId) {
-        interfaceInfoMapper.addInterfaceTotal(interfaceInfoId);
+    public void addInterfaceTotal(Long id) {
+        interfaceInfoMapper.addInterfaceTotal(id);
     }
 }

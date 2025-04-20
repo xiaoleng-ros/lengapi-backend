@@ -8,9 +8,8 @@ public interface InnerUserInterfaceInfoService {
 
     /**
      * 调用次数+1
-     * @param interfaceInfoId
      * @param userId
      * @return
      */
-    boolean invokeCount(long interfaceInfoId, long userId);
+    boolean invokeCount(long userId);
 }

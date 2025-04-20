@@ -10,5 +10,11 @@ import com.leng.lengapicommon.model.entity.InterfaceInfo;
 */
 public interface InterfaceInfoService extends IService<InterfaceInfo> {
 
+     /**
+      * 添加接口信息
+      * @param interfaceInfo
+      * @param add
+      */
      void validInterfaceInfo(InterfaceInfo interfaceInfo, boolean add);
+
 }

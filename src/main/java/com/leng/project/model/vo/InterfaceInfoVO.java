@@ -5,19 +5,29 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 
 import java.io.Serial;
+import java.io.Serializable;
 
 /**
  * 接口信息封装视图
  *
  */
-@EqualsAndHashCode(callSuper = true)
 @Data
-public class InterfaceInfoVO extends InterfaceInfo {
+public class InterfaceInfoVO implements Serializable {
 
     /**
-     * 调用次数
+     * 接口 ID
      */
-    private Integer totalNum;
+    private Long id;
+
+    /**
+     * 接口名称
+     */
+    private String name;
+
+    /**
+     * 接口总调用次数
+     */
+    private Integer interfaceTotal;
 
     @Serial
     private static final long serialVersionUID = 1L;

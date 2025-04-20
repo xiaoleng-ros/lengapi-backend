@@ -13,8 +13,8 @@ public class InnerUserInterfaceInfoServiceImpl implements InnerUserInterfaceInfo
     private UserInterfaceInfoService userInterfaceInfoService;
 
     @Override
-    public boolean invokeCount(long interfaceInfoId, long userId) {
-        return userInterfaceInfoService.invokeCount(interfaceInfoId, userId);
+    public boolean invokeCount(long userId) {
+        return userInterfaceInfoService.invokeCount(userId);
     }
 
 }

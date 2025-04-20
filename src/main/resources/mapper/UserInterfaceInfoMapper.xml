@@ -5,15 +5,15 @@
 <mapper namespace="com.leng.project.mapper.UserInterfaceInfoMapper">
 
     <resultMap id="BaseResultMap" type="com.leng.lengapicommon.model.entity.UserInterfaceInfo">
-            <id property="id" column="id" jdbcType="BIGINT"/>
-            <result property="userId" column="userId" jdbcType="BIGINT"/>
-            <result property="interfaceInfoId" column="interfaceInfoId" jdbcType="BIGINT"/>
-            <result property="totalNum" column="totalNum" jdbcType="INTEGER"/>
-            <result property="leftNum" column="leftNum" jdbcType="INTEGER"/>
-            <result property="status" column="status" jdbcType="INTEGER"/>
-            <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
-            <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
-            <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
+        <id property="id" column="id" jdbcType="BIGINT"/>
+        <result property="userId" column="userId" jdbcType="BIGINT"/>
+        <result property="interfaceInfoId" column="interfaceInfoId" jdbcType="BIGINT"/>
+        <result property="totalNum" column="totalNum" jdbcType="INTEGER"/>
+        <result property="leftNum" column="leftNum" jdbcType="INTEGER"/>
+        <result property="status" column="status" jdbcType="INTEGER"/>
+        <result property="createTime" column="createTime" jdbcType="TIMESTAMP"/>
+        <result property="updateTime" column="updateTime" jdbcType="TIMESTAMP"/>
+        <result property="isDelete" column="isDelete" jdbcType="TINYINT"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -21,9 +21,35 @@
         totalNum,leftNum,status,
         createTime,updateTime,isDelete
     </sql>
-    <select id="listTopInvokeInterfaceInfo" resultType="com.leng.lengapicommon.model.entity.UserInterfaceInfo">
-        select interfaceInfoId,sum(totalNum)as totalNum
-        from user_interface_info group by interfaceInfoId
-        order by totalNum desc limit #{limit};
+
+    <!-- 更新用户调用剩余次数 -->
+    <update id="updateLeftNum" parameterType="map">
+        update user_interface_info
+        set leftNum = leftNum - 1
+        where interfaceInfoId = #{interfaceInfoId}
+          and userId = #{userId}
+          and isDelete = 0
+          and status = 0
+    </update>
+
+    <!-- 修改为统计用户剩余调用次数 -->
+    <select id="getUserLeftInvokeTimes" resultType="com.leng.lengapicommon.model.entity.UserInterfaceInfo">
+        select
+        uii.interfaceInfoId,
+        sum(uii.leftNum) as totalNum,  <!-- 统计剩余调用次数 -->
+        ii.name as interfaceName
+        from
+        user_interface_info uii
+        left join
+        interface_info ii on uii.interfaceInfoId = ii.id
+        where
+        uii.isDelete = 0
+        and ii.isDelete = 0
+        and uii.status = 0  <!-- 只统计正常状态 -->
+        group by
+        uii.interfaceInfoId
+        group by
+        totalNum desc
+        limit #{limit};
     </select>
 </mapper>

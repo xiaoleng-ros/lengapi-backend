@@ -30,8 +30,27 @@
 
     <!-- 更新接口总调用次数 -->
     <update id="addInterfaceTotal">
-        UPDATE interface_info
-        SET interfaceTotal = interfaceTotal + 1
-        WHERE id = #{id}
+        update interface_info
+        set interfaceTotal = interfaceTotal + 1
+        where id = #{id}
     </update>
+
+    <!-- 查询调用次数最多的三个接口（用于TOP3饼图） -->
+    <select id="listTop3InvokeInterfaceInfo" resultType="com.leng.lengapicommon.model.vo.InterfaceInfoVO">
+        select id,name,interfaceTotal
+        from interface_info
+        where isDelete = 0
+        and status = 1  <!-- 只查询开启状态的接口 -->
+        order by interfaceTotal desc limit 3;
+    </select>
+
+    <!-- 查询所有接口的总调用次数（用于全量饼图） -->
+    <select id="listAllInterfaceTotal" resultType="com.leng.lengapicommon.model.vo.InterfaceInfoVO">
+        select id,name,interfaceTotal
+        from interface_info
+        where isDelete = 0
+        and status = 1  <!-- 只查询开启状态的接口 -->
+        order by interfaceTotal desc;
+    </select>
+
 </mapper>

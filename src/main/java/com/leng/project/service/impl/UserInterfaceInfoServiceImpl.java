@@ -37,14 +37,13 @@ public class UserInterfaceInfoServiceImpl extends ServiceImpl<UserInterfaceInfoM
     }
 
     @Override
-    public boolean invokeCount(long interfaceInfoId, long userId) {
+    public boolean invokeCount(long userId) {
         // TODO: 如果用户瞬间调用10w次会出问题,用个锁
         // 判断
-        if (interfaceInfoId <= 0 || userId <= 0) {
+        if (userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
         UpdateWrapper<UserInterfaceInfo> updateWrapper = new UpdateWrapper<>();
-        updateWrapper.eq("interfaceInfoId", interfaceInfoId);
         updateWrapper.eq("userId", userId);
         updateWrapper.setSql("leftNum = leftNum - 1, totalNum = totalNum + 1");
         return this.update(updateWrapper);
