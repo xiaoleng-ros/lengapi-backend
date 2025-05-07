@@ -59,7 +59,6 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!userPassword.equals(checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
         }
-
         synchronized (userAccount.intern()) {
             // 检查账号是否重复
             QueryWrapper<User> queryWrapper = new QueryWrapper<>();
@@ -68,14 +67,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
-
             // 加密密码
             String encryptPassword = passwordEncoder.encode(userPassword);
-
             // 生成 accessKey 和 secretKey
             String accessKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(5));
             String secretKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(8));
-
             // 插入用户数据
             User user = new User();
             user.setUserName(userName);
@@ -106,21 +102,21 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (userPassword.length() < 8) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
         }
-
         // 查询用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
         User user = this.baseMapper.selectOne(queryWrapper);
-
         // 验证用户和密码
         if (user == null || !passwordEncoder.matches(userPassword, user.getUserPassword())) {
             log.info("用户登录失败，账号或密码错误");
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
-
+        // 判断用户是否被封禁
+        if ("ban".equals(user.getUserRole())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "您的账号已被封禁，无法登录");
+        }
         // 生成 JWT 令牌
         String token = JwtUtils.generateToken(userAccount);
-
         // 返回登录用户信息和令牌
         LoginUserVO loginUserVO = this.getLoginUserVO(user);
         loginUserVO.setToken(token);
@@ -137,13 +133,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
-
         // 验证令牌
         String userAccount = JwtUtils.validateToken(token);
         if (userAccount == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
         }
-
         // 查询用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
@@ -164,13 +158,11 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (token != null && token.startsWith("Bearer ")) {
             token = token.substring(7);
         }
-
         // 验证令牌
         String userAccount = JwtUtils.validateToken(token);
         if (userAccount == null) {
             return null;
         }
-
         // 查询用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("userAccount", userAccount);
@@ -279,18 +271,15 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (id == null || StringUtils.isBlank(fileUrl)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
-
         // 2.校验头像 URL 格式
         if (!fileUrl.startsWith("http://") && !fileUrl.startsWith("https://")) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "头像 URL 格式错误");
         }
-
         // 3.查询用户
         User user = this.getById(id);
         if (user == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
         }
-
         // 4.更新头像
         user.setUserAvatar(fileUrl);
         boolean updateResult = this.updateById(user);

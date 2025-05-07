@@ -1,0 +1,10 @@
+spring:
+  application:
+    name: lengapi-client-sdk
+
+server:
+  servlet:
+    encoding:
+      charset: UTF-8
+      enabled: true
+      force: true

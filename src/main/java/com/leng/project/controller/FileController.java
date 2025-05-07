@@ -1,11 +1,6 @@
 package com.leng.project.controller;
 
 import cn.hutool.core.io.FileUtil;
-import java.io.File;
-import java.util.Arrays;
-import javax.annotation.Resource;
-import javax.servlet.http.HttpServletRequest;
-
 import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.common.BaseResponse;
 import com.leng.project.common.ErrorCode;
@@ -13,14 +8,20 @@ import com.leng.project.common.ResultUtils;
 import com.leng.project.constant.FileConstant;
 import com.leng.project.exception.BusinessException;
 import com.leng.project.manager.CosManager;
-import com.leng.project.model.dto.file.UploadFileRequest;
 import com.leng.project.model.enums.FileUploadBizEnum;
 import com.leng.project.service.UserService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RandomStringUtils;
-import org.apache.commons.lang3.StringUtils;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
+
+import javax.annotation.Resource;
+import javax.servlet.http.HttpServletRequest;
+import java.io.File;
+import java.util.Arrays;
 
 /**
  * 文件接口

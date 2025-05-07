@@ -34,7 +34,7 @@
 
 - [**API 前端 🏘**️](https://github.com/xiaoleng-ros/lengapi-frontend)
 
--  **[API 接口开放平台 🔗](http://119.91.248.232)**
+-  **[API 接口开放平台 🔗](http://api.iceuu.icu)**
 
 -  **[API-DOC 开发者文档 📖]()**
 
@@ -51,7 +51,7 @@
 
 ## 项目流程 🗺️
 
-![API 接口开放平台](src/main/resources/JiaGou.jpg)
+![API 接口开放平台](src/main/resources/JiaGou.svg)
 
 ## 快速启动 🚀
 

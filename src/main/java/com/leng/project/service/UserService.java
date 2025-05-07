@@ -74,4 +74,5 @@ public interface UserService extends IService<User> {
      * 用户头像上传
      */
     void updateUserAvatar(Long id, String fileUrl);
+
 }

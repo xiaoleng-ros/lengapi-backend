@@ -68,10 +68,11 @@ knife4j:
       locations: classpath:doc/example.md  # 可选：附加文档路径
 
 # 这段配置仅供测试调用,实际应根据用户登陆信息获取对应的ak,sk
-lengapi:
-  client:
-    access-key: xiaoleng
-    secret-key: abcdefg
+leng:
+  api:
+    client:
+      access-key: xiaoleng
+      secret-key: abcdefg
 
 dubbo:
   application:

@@ -4,9 +4,6 @@ import cn.hutool.crypto.SecureUtil;
 import cn.hutool.json.JSONArray;
 import cn.hutool.json.JSONObject;
 import cn.hutool.json.JSONUtil;
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
-import com.google.gson.reflect.TypeToken;
 import com.leng.lengapiclientsdk.client.LengApiClient;
 import com.leng.lengapiclientsdk.exception.ApiException;
 import com.leng.lengapiclientsdk.exception.ErrorCode;
@@ -38,7 +35,9 @@ public abstract class BaseService implements ApiService {
     /**
      * 网关HOST
      */
-    private String gatewayHost = "http://localhost:8301";
+    //private String gatewayHost = "http://localhost:8301";  // 修改为本地网关服务
+
+    private String gatewayHost = "http://gateway.iceuu.icu:8301";  // 修改网关地址为域名
 
     private HttpClient httpClient = HttpClient.newHttpClient();
 

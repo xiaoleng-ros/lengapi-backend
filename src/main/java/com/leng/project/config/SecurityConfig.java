@@ -1,6 +1,7 @@
 package com.leng.project.config;
 
 
+import com.alibaba.nacos.common.utils.HttpMethod;
 import com.leng.project.filter.JwtFilter;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -27,6 +28,7 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http
                 .csrf().disable()
                 .authorizeRequests()
+                .antMatchers(HttpMethod.OPTIONS, "/**").permitAll() // 放行 OPTIONS
                 .antMatchers("/user/login","/user/register").permitAll() // 允许所有人访问登录,注册接口
                 .antMatchers("/doc.html").permitAll() // 允许所有人访问 doc.html
                 .antMatchers("/v2/api-docs", "/swagger-resources/configuration/ui",

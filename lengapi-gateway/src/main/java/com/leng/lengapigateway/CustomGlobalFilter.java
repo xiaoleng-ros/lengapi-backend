@@ -3,7 +3,6 @@ package com.leng.lengapigateway;
 import com.leng.lengapiclientsdk.utils.SignUtils;
 import com.leng.lengapicommon.model.entity.InterfaceInfo;
 import com.leng.lengapicommon.model.entity.User;
-import com.leng.lengapicommon.model.entity.UserInterfaceInfo;
 import com.leng.lengapicommon.service.InnerInterfaceInfoService;
 import com.leng.lengapicommon.service.InnerUserInterfaceInfoService;
 import com.leng.lengapicommon.service.InnerUserService;

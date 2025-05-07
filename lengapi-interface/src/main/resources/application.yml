@@ -9,7 +9,9 @@ server:
       force-request: true
       force-response: true
     context-path: /api
-lengapi:
-  client:
-    access-key: xiaoleng
-    secret-key: abcdefg
+
+leng:
+  api:
+    client:
+      access-key: xiaoleng
+      secret-key: abcdefg
