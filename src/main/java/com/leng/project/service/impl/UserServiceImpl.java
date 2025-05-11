@@ -1,8 +1,8 @@
 package com.leng.project.service.impl;
 
 import cn.hutool.core.collection.CollUtil;
-import cn.hutool.core.util.RandomUtil;
-import cn.hutool.crypto.digest.DigestUtil;
+import cn.hutool.core.util.IdUtil;
+import cn.hutool.crypto.SecureUtil;
 import com.baomidou.mybatisplus.core.conditions.query.QueryWrapper;
 import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.leng.lengapicommon.model.entity.User;
@@ -70,8 +70,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 加密密码
             String encryptPassword = passwordEncoder.encode(userPassword);
             // 生成 accessKey 和 secretKey
-            String accessKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(5));
-            String secretKey = DigestUtil.md5Hex(userAccount + RandomUtil.randomNumbers(8));
+            // 使用更安全的生成方式
+            String salt = IdUtil.fastSimpleUUID(); // 生成UUID作为盐值
+            String accessKey = SecureUtil.sha256(userAccount + System.currentTimeMillis() + salt);
+            String secretKey = SecureUtil.sha256(salt + System.nanoTime() + userAccount);
             // 插入用户数据
             User user = new User();
             user.setUserName(userName);

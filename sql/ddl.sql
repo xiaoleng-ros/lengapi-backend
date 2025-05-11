@@ -20,6 +20,7 @@ create table if not exists user
     `secretKey` varchar(512) not null comment 'secretKey',
     createTime   datetime     default CURRENT_TIMESTAMP not null comment '创建时间',
     updateTime   datetime     default CURRENT_TIMESTAMP not null on update CURRENT_TIMESTAMP comment '更新时间',
-    isDelete     tinyint      default 0                 not null comment '是否删除'
+    isDelete     tinyint      default 0                 not null comment '是否删除',
+    UNIQUE INDEX uniq_accessKey (accessKey),  -- 添加唯一约束
+    UNIQUE INDEX uniq_secretKey (secretKey)   -- 添加唯一约束
 ) comment '用户' collate = utf8mb4_unicode_ci;
-
