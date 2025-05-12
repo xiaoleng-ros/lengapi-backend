@@ -4,7 +4,6 @@ import com.baomidou.mybatisplus.extension.plugins.pagination.Page;
 import com.leng.lengapicommon.model.entity.User;
 import com.leng.project.annotation.AuthCheck;
 import com.leng.project.common.BaseResponse;
-import com.leng.project.common.DeleteRequest;
 import com.leng.project.common.ErrorCode;
 import com.leng.project.common.ResultUtils;
 import com.leng.project.constant.UserConstant;
@@ -114,14 +113,14 @@ public class UserController {
     }
 
     /**
-     * 创建用户
+     * 管理员创建用户
      *
      * @param userAddRequest
      * @param request
      * @return
      */
     @PostMapping("/add")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  // 管理员权限检查
     public BaseResponse<Long> addUser(@RequestBody UserAddRequest userAddRequest, HttpServletRequest request) {
         if (userAddRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
@@ -139,31 +138,65 @@ public class UserController {
     }
 
     /**
-     * 删除用户
+     * 管理员删除用户
      *
-     * @param deleteRequest
+     * @param userId
      * @param request
      * @return
      */
     @PostMapping("/delete")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
-    public BaseResponse<Boolean> deleteUser(@RequestBody DeleteRequest deleteRequest, HttpServletRequest request) {
-        if (deleteRequest == null || deleteRequest.getId() <= 0) {
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  // 管理员权限检查
+    public BaseResponse<Boolean> deleteUser(@RequestParam Long userId, HttpServletRequest request) {
+        if (userId == null || userId <= 0) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean b = userService.removeById(deleteRequest.getId());
-        return ResultUtils.success(b);
+        boolean result = userService.deleteUser(userId);
+        return ResultUtils.success(result);
     }
 
     /**
-     * 更新用户
+     * 管理员封禁用户
+     *
+     * @param userId
+     * @param request
+     * @return
+     */
+    @PostMapping("/ban")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  // 管理员权限检查
+    public BaseResponse<Boolean> banUser(@RequestParam Long userId, HttpServletRequest request) {
+        if (userId == null || userId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean result = userService.banUser(userId);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 管理员解封用户
+     *
+     * @param userId
+     * @param request
+     * @return
+     */
+    @PostMapping("/unban")
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)  // 管理员权限检查
+    public BaseResponse<Boolean> unbanUser(@RequestParam Long userId, HttpServletRequest request) {
+        if (userId == null || userId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean result = userService.unbanUser(userId);
+        return ResultUtils.success(result);
+    }
+
+    /**
+     * 管理员更新用户
      *
      * @param userUpdateRequest
      * @param request
      * @return
      */
     @PostMapping("/update")
-    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE)
+    @AuthCheck(mustRole = UserConstant.ADMIN_ROLE) // 管理员权限检查
     public BaseResponse<Boolean> updateUser(@RequestBody UserUpdateRequest userUpdateRequest,
                                             HttpServletRequest request) {
         if (userUpdateRequest == null || userUpdateRequest.getId() == null) {
@@ -272,4 +305,24 @@ public class UserController {
         ThrowUtils.throwIf(!result, ErrorCode.OPERATION_ERROR);
         return ResultUtils.success(true);
     }
+
+    /**
+     * 重置用户密钥
+     *
+     * @param request
+     * @return
+     */
+    @PostMapping("/key/reset")
+    public BaseResponse<Boolean> resetUserKey(HttpServletRequest request) {
+        // 获取当前登录用户
+        User loginUser = userService.getLoginUser(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR);
+        }
+        // 重置密钥
+        userService.resetUserKey(loginUser.getId());
+        return ResultUtils.success(true);
+    }
+
+
 }

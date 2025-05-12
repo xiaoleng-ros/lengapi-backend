@@ -75,4 +75,26 @@ public interface UserService extends IService<User> {
      */
     void updateUserAvatar(Long id, String fileUrl);
 
+    /**
+     * 重置用户密钥
+     */
+    void resetUserKey(Long userId);
+
+    /**
+     * 删除用户
+     */
+    boolean deleteUser(Long userId);
+
+    /**
+     * 封禁用户
+     */
+    boolean banUser(Long userId);
+
+    /**
+     * 解除用户封禁
+     *
+     * @param userId 用户id
+     * @return 是否解封成功
+     */
+    boolean unbanUser(Long userId);
 }

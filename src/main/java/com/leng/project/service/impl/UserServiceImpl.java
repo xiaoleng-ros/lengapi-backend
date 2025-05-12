@@ -70,7 +70,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             // 加密密码
             String encryptPassword = passwordEncoder.encode(userPassword);
             // 生成 accessKey 和 secretKey
-            // 使用更安全的生成方式
+            // 使用更安全的生成方式（SHA256+UUID盐值）
             String salt = IdUtil.fastSimpleUUID(); // 生成UUID作为盐值
             String accessKey = SecureUtil.sha256(userAccount + System.currentTimeMillis() + salt);
             String secretKey = SecureUtil.sha256(salt + System.nanoTime() + userAccount);
@@ -114,8 +114,8 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
         }
         // 判断用户是否被封禁
-        if ("ban".equals(user.getUserRole())) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "您的账号已被封禁，无法登录");
+        if (UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "您的账号已被封禁，无法登录");
         }
         // 生成 JWT 令牌
         String token = JwtUtils.generateToken(userAccount);
@@ -288,5 +288,82 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         if (!updateResult) {
             throw new BusinessException(ErrorCode.SYSTEM_ERROR, "更新头像失败");
         }
+    }
+
+    /**
+     * 重置用户密钥
+     */
+    @Override
+    public void resetUserKey(Long userId) {
+        User user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        }
+        
+        // 生成新的密钥对
+        String salt = IdUtil.fastSimpleUUID(); // 生成UUID作为盐值
+        String accessKey = SecureUtil.sha256(user.getUserAccount() + System.currentTimeMillis() + salt);
+        String secretKey = SecureUtil.sha256(salt + System.nanoTime() + user.getUserAccount());
+        
+        // 更新用户密钥
+        user.setAccessKey(accessKey);
+        user.setSecretKey(secretKey);
+        boolean result = this.updateById(user);
+        if (!result) {
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "重置密钥失败");
+        }
+    }
+
+    /**
+     * 删除用户
+     */
+    @Override
+    public boolean deleteUser(Long userId) {
+        if (userId == null) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户id不能为空");
+        }
+        // 判断用户是否存在
+        User user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        }
+        // 执行删除
+        return this.removeById(userId);
+    }
+
+    /**
+     * 封禁用户
+     */
+    @Override
+    public boolean banUser(Long userId) {
+        if (userId == null || userId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        User user = new User();
+        user.setId(userId);
+        user.setUserRole(UserRoleEnum.BAN.getValue());
+        return this.updateById(user);
+    }
+
+    /**
+     * 解封用户
+     */
+    @Override
+    public boolean unbanUser(Long userId) {
+        if (userId == null || userId <= 0) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户ID不能为空或小于等于0");
+        }
+        // 判断用户是否存在
+        User user = this.getById(userId);
+        if (user == null) {
+            throw new BusinessException(ErrorCode.NOT_FOUND_ERROR, "用户不存在");
+        }
+        // 判断用户当前是否处于封禁状态
+        if (!UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
+            throw new BusinessException(ErrorCode.OPERATION_ERROR, "该用户未被封禁");
+        }
+        // 将用户角色设置回普通用户
+        user.setUserRole(UserRoleEnum.USER.getValue());
+        return this.updateById(user);
     }
 }
