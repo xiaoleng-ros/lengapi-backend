@@ -67,6 +67,10 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
             if (count > 0) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号重复");
             }
+            // 账号不能重复，包括已删除的账号
+            if (checkUserAccountExists(userAccount)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "该账号已被注册");
+            }
             // 加密密码
             String encryptPassword = passwordEncoder.encode(userPassword);
             // 生成 accessKey 和 secretKey
@@ -189,21 +193,35 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
     }
 
     /**
-     * 用户注销
+     * 用户退出
+     *
+     * @param request HTTP请求
+     * @return 是否成功退出
      */
     @Override
     public boolean userLogout(HttpServletRequest request) {
-        // 记录注销操作
-        String token = request.getHeader("Authorization");
-        if (token != null && token.startsWith("Bearer ")) {
-            token = token.substring(7);
+        // 获取当前登录用户
+        User loginUser = getLoginUserPermitNull(request);
+        if (loginUser == null) {
+            throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
         }
-        String userAccount = JwtUtils.validateToken(token);
-        if (userAccount != null) {
-            log.info("用户注销成功，账号：{}", userAccount);
+        try {
+            // 获取JWT令牌
+            String token = request.getHeader("Authorization");
+            if (token != null && token.startsWith("Bearer ")) {
+                token = token.substring(7);
+                // 将令牌加入黑名单或设置为失效
+                JwtUtils.invalidateToken(token);
+            }
+            // 清除会话信息
+            request.getSession().invalidate();
+            // 记录用户退出日志
+            log.info("用户 {} 退出登录，IP: {}", loginUser.getUserAccount(), request.getRemoteAddr());
             return true;
+        } catch (Exception e) {
+            log.error("用户退出异常", e);
+            throw new BusinessException(ErrorCode.SYSTEM_ERROR, "退出失败");
         }
-        return false;
     }
 
     /**
@@ -366,4 +384,26 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         user.setUserRole(UserRoleEnum.USER.getValue());
         return this.updateById(user);
     }
+
+    /**
+     * 检查用户账号是否存在
+     */
+    public boolean checkUserAccountExists(String userAccount) {
+        // 创建查询条件，包含已删除的记录
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("userAccount", userAccount);
+        // 设置包含已删除记录
+        queryWrapper.select("id", "isDelete");
+
+        User user = baseMapper.selectOne(queryWrapper);
+        if (user != null) {
+            // 如果找到记录，无论是否删除都返回true
+            return true;
+        }
+        return false;
+    }
+
+
 }
+
+
