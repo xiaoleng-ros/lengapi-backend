@@ -5,10 +5,6 @@ import lombok.Data;
 import java.io.Serial;
 import java.io.Serializable;
 
-/**
- * 用户注册请求体
- *
- */
 @Data
 public class UserRegisterRequest implements Serializable {
 
@@ -18,8 +14,18 @@ public class UserRegisterRequest implements Serializable {
     private String userName;
 
     private String userAccount;
+    
+    /**
+     * 邮箱
+     */
+    private String email;
 
     private String userPassword;
 
     private String checkPassword;
+    
+    /**
+     * 验证码
+     */
+    private String verificationCode;
 }

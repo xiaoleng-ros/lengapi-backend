@@ -1,13 +1,10 @@
 package com.leng.project.model.dto.user;
 
-import java.io.Serial;
-import java.io.Serializable;
 import lombok.Data;
 
-/**
- * 用户登录请求
- *
- */
+import java.io.Serial;
+import java.io.Serializable;
+
 @Data
 public class UserLoginRequest implements Serializable {
 
@@ -15,6 +12,16 @@ public class UserLoginRequest implements Serializable {
     private static final long serialVersionUID = 3191241716373120793L;
 
     private String userAccount;
+    
+    /**
+     * 邮箱
+     */
+    private String email;
 
     private String userPassword;
+    
+    /**
+     * 验证码
+     */
+    private String verificationCode;
 }

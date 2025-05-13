@@ -27,6 +27,7 @@ import org.springframework.stereotype.Service;
 import javax.servlet.http.HttpServletRequest;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.regex.Pattern;
 import java.util.stream.Collectors;
 
 /**
@@ -36,7 +37,15 @@ import java.util.stream.Collectors;
 @Slf4j
 public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements UserService {
 
+    /**
+     * 密码加密器
+     */
     private static final PasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+    
+    /**
+     * 邮箱正则表达式
+     */
+    private static final Pattern EMAIL_PATTERN = Pattern.compile("^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$");
 
     /**
      * 用户注册
@@ -396,12 +405,117 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
         queryWrapper.select("id", "isDelete");
 
         User user = baseMapper.selectOne(queryWrapper);
-        if (user != null) {
-            // 如果找到记录，无论是否删除都返回true
-            return true;
-        }
-        return false;
+
+        return user != null;
     }
+
+    /**
+     * 用户邮箱注册
+     */
+    @Override
+    public long userEmailRegister(String userName, String email, String userPassword, String checkPassword) {
+        // 校验参数
+        if (StringUtils.isAnyBlank(userName, email, userPassword, checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+        if (userName.length() > 6) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户昵称过长");
+        }
+        // 校验邮箱格式
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不正确");
+        }
+        if (userPassword.length() < 8 || checkPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户密码过短");
+        }
+        if (!userPassword.equals(checkPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "两次输入的密码不一致");
+        }
+        synchronized (email.intern()) {
+            // 检查邮箱是否重复
+            QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+            queryWrapper.eq("email", email);
+            long count = this.baseMapper.selectCount(queryWrapper);
+            if (count > 0) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱已被注册");
+            }
+            
+            // 生成随机账号
+            String userAccount = "user_" + System.currentTimeMillis();
+            
+            // 加密密码
+            String encryptPassword = passwordEncoder.encode(userPassword);
+            // 生成 accessKey 和 secretKey
+            String salt = IdUtil.fastSimpleUUID(); // 生成UUID作为盐值
+            String accessKey = SecureUtil.sha256(userAccount + System.currentTimeMillis() + salt);
+            String secretKey = SecureUtil.sha256(salt + System.nanoTime() + userAccount);
+            // 插入用户数据
+            User user = new User();
+            user.setUserName(userName);
+            user.setUserAccount(userAccount);
+            user.setEmail(email);
+            user.setUserPassword(encryptPassword);
+            user.setAccessKey(accessKey);
+            user.setSecretKey(secretKey);
+            boolean saveResult = this.save(user);
+            if (!saveResult) {
+                throw new BusinessException(ErrorCode.SYSTEM_ERROR, "注册失败，数据库错误");
+            }
+            return user.getId();
+        }
+    }
+
+    /**
+     * 用户邮箱登录
+     */
+    @Override
+    public LoginUserVO userEmailLogin(String email, String userPassword) {
+        // 校验参数
+        if (StringUtils.isAnyBlank(email, userPassword)) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+        }
+        // 校验邮箱格式
+        if (!EMAIL_PATTERN.matcher(email).matches()) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不正确");
+        }
+        if (userPassword.length() < 8) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
+        }
+        // 查询用户
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("email", email);
+        User user = this.baseMapper.selectOne(queryWrapper);
+        // 验证用户和密码
+        if (user == null || !passwordEncoder.matches(userPassword, user.getUserPassword())) {
+            log.info("用户登录失败，邮箱或密码错误");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+        }
+        // 判断用户是否被封禁
+        if (UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
+            throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "您的账号已被封禁，无法登录");
+        }
+        // 生成 JWT 令牌
+        String token = JwtUtils.generateToken(user.getUserAccount());
+        // 返回登录用户信息和令牌
+        LoginUserVO loginUserVO = this.getLoginUserVO(user);
+        loginUserVO.setToken(token);
+        return loginUserVO;
+    }
+    
+    /**
+     * 检查邮箱是否存在
+     */
+    public boolean checkEmailExists(String email) {
+        // 创建查询条件，包含已删除的记录
+        QueryWrapper<User> queryWrapper = new QueryWrapper<>();
+        queryWrapper.eq("email", email);
+        // 设置包含已删除记录
+        queryWrapper.select("id", "isDelete");
+
+        User user = baseMapper.selectOne(queryWrapper);
+        return user != null;
+    }
+
 
 
 }

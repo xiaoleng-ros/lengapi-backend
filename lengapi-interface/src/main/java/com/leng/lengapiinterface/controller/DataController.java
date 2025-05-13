@@ -32,7 +32,6 @@ public class DataController {
         NameResponse nameResponse = new NameResponse();
         // 将传入的 name 参数设置到响应对象中
         nameResponse.setName("你的名字是" + nameParams.getName());
-        log.info("返回响应结果: {}", nameResponse);
         return nameResponse;
     }
 

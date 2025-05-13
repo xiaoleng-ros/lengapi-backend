@@ -14,6 +14,10 @@ import java.util.Map;
 import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 
+/**
+ * JWT工具类
+ *
+ */
 public class JwtUtils {
 
     private static final String SECRET_KEY = "^1AXxO^7W>0S^C4v)CnZaOpO<<e,%E-1"; // 建议使用配置文件管理密钥

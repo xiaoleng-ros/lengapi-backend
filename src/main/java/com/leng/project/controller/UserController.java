@@ -13,6 +13,7 @@ import com.leng.project.model.dto.user.*;
 import com.leng.project.model.vo.LoginUserVO;
 import com.leng.project.model.vo.UserVO;
 import com.leng.project.service.UserService;
+import com.leng.project.service.EmailVerificationService;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.BeanUtils;
@@ -37,12 +38,26 @@ public class UserController {
 
     @Resource
     private UserService userService;
+    
+    @Resource
+    private EmailVerificationService emailVerificationService;
+
+    /**
+     * 发送验证码
+     * @param useremailRequest 邮箱请求体
+     * @return 发送结果
+     */
+    @PostMapping("/send/verification-code")
+    public BaseResponse<Boolean> sendVerificationCode(@RequestBody UserEmailRequest useremailRequest) {
+        if (useremailRequest == null || StringUtils.isBlank(useremailRequest.getEmail())) {
+            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        }
+        boolean result = emailVerificationService.sendVerificationCode(useremailRequest.getEmail());
+        return ResultUtils.success(result);
+    }
 
     /**
      * 用户注册
-     *
-     * @param userRegisterRequest
-     * @return
      */
     @PostMapping("/register")
     public BaseResponse<Long> userRegister(@RequestBody UserRegisterRequest userRegisterRequest) {
@@ -51,33 +66,69 @@ public class UserController {
         }
         String userName = userRegisterRequest.getUserName();
         String userAccount = userRegisterRequest.getUserAccount();
+        String email = userRegisterRequest.getEmail();
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword, checkPassword)) {
-            return null;
+        String verificationCode = userRegisterRequest.getVerificationCode();
+        
+        // 判断是使用账号注册还是邮箱注册
+        if (StringUtils.isNotBlank(email)) {
+            // 邮箱注册
+            if (StringUtils.isAnyBlank(userName, email, userPassword, checkPassword, verificationCode)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            }
+            // 验证验证码
+            boolean isValid = emailVerificationService.verifyCode(email, verificationCode);
+            if (!isValid) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误或已过期");
+            }
+            long result = userService.userEmailRegister(userName, email, userPassword, checkPassword);
+            return ResultUtils.success(result);
+        } else {
+            // 账号注册
+            if (StringUtils.isAnyBlank(userName, userAccount, userPassword, checkPassword)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            }
+            long result = userService.userRegister(userName, userAccount, userPassword, checkPassword);
+            return ResultUtils.success(result);
         }
-        long result = userService.userRegister(userName,userAccount, userPassword, checkPassword);
-        return ResultUtils.success(result);
     }
 
     /**
      * 用户登录
-     *
-     * @param userLoginRequest
-     * @return
      */
     @PostMapping("/login")
     public BaseResponse<Map<String, Object>> userLogin(@RequestBody UserLoginRequest userLoginRequest) {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
+        
         String userAccount = userLoginRequest.getUserAccount();
+        String email = userLoginRequest.getEmail();
         String userPassword = userLoginRequest.getUserPassword();
-        if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR);
+        String verificationCode = userLoginRequest.getVerificationCode();
+        
+        // 判断是使用账号登录还是邮箱登录
+        LoginUserVO loginUserVO;
+        if (StringUtils.isNotBlank(email)) {
+            // 邮箱登录
+            if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            }
+            // 验证验证码
+            boolean isValid = emailVerificationService.verifyCode(email, verificationCode);
+            if (!isValid) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误或已过期");
+            }
+            loginUserVO = userService.userEmailLogin(email, userPassword);
+        } else {
+            // 账号登录
+            if (StringUtils.isAnyBlank(userAccount, userPassword)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            }
+            loginUserVO = userService.userLogin(userAccount, userPassword);
         }
-        // 调用 service 层处理用户登录
-        LoginUserVO loginUserVO = userService.userLogin(userAccount, userPassword);
+        
         // 返回包含令牌的响应
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("token", loginUserVO.getToken());

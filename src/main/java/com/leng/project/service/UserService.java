@@ -19,11 +19,21 @@ public interface UserService extends IService<User> {
      * 用户注册
      */
     long userRegister(String userName, String userAccount, String userPassword, String checkPassword);
+    
+    /**
+     * 用户邮箱注册
+     */
+    long userEmailRegister(String userName, String email, String userPassword, String checkPassword);
 
     /**
      * 用户登录
      */
     LoginUserVO userLogin(String userAccount, String userPassword);
+    
+    /**
+     * 用户邮箱登录
+     */
+    LoginUserVO userEmailLogin(String email, String userPassword);
 
     /**
      * 获取当前登录用户

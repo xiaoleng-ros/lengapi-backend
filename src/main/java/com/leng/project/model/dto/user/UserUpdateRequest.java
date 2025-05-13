@@ -11,6 +11,7 @@ import java.io.Serializable;
  */
 @Data
 public class UserUpdateRequest implements Serializable {
+
     /**
      * id
      */
@@ -20,6 +21,16 @@ public class UserUpdateRequest implements Serializable {
      * 用户昵称
      */
     private String userName;
+
+    /**
+     * 邮箱
+     */
+    private String email;
+
+    /**
+     * 手机号
+     */
+    private String phone;
 
     /**
      * 用户头像
