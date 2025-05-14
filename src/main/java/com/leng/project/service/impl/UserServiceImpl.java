@@ -413,7 +413,7 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户邮箱注册
      */
     @Override
-    public long userEmailRegister(String userName, String email, String userPassword, String checkPassword) {
+    public long userEmailRegister(String userName, String email, String verificationCode, String userPassword, String checkPassword) {
         // 校验参数
         if (StringUtils.isAnyBlank(userName, email, userPassword, checkPassword)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");

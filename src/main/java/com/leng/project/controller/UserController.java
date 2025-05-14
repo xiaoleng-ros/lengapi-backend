@@ -89,7 +89,7 @@ public class UserController {
             if (!isValid) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误或已过期");
             }
-            long result = userService.userEmailRegister(userName, email, userPassword, checkPassword);
+            long result = userService.userEmailRegister(userName, email, verificationCode, userPassword, checkPassword);
             return ResultUtils.success(result);
         } else {
             // 账号注册

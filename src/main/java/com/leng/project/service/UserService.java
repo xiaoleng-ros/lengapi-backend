@@ -23,7 +23,7 @@ public interface UserService extends IService<User> {
     /**
      * 用户邮箱注册
      */
-    long userEmailRegister(String userName, String email, String userPassword, String checkPassword);
+    long userEmailRegister(String userName, String email, String verificationCode, String userPassword, String checkPassword);
 
     /**
      * 用户账号登录
