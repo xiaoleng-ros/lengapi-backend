@@ -60,21 +60,36 @@ public class EmailVerificationServiceImpl implements EmailVerificationService {
     public CompletableFuture<Boolean> sendVerificationCode(String email) {
         log.info("开始发送验证码到邮箱: {}", email);
         try {
+            // 检查发送频率限制
+            String sendRecordKey = SEND_RECORD_KEY_PREFIX + email;
+            String lastSendTime = stringRedisTemplate.opsForValue().get(sendRecordKey);
+            if (lastSendTime != null) {
+                long timeDiff = System.currentTimeMillis() - Long.parseLong(lastSendTime);
+                if (timeDiff < MIN_SEND_INTERVAL * 1000) {
+                    log.warn("发送验证码过于频繁，请稍后再试");
+                    return CompletableFuture.completedFuture(false);
+                }
+            }
+
             // 生成验证码
             String verificationCode = generateVerificationCode();
             
             // 构建邮件消息
             SimpleMailMessage message = new SimpleMailMessage();
-            message.setFrom(emailFrom);  // 设置发件人
+            message.setFrom("API接口应用平台 <" + emailFrom + ">");  // 设置发件人名称和邮箱
             message.setTo(email);
             message.setSubject("验证码");
-            message.setText("您的验证码是: " + verificationCode);
+            message.setText("您的验证码是: " + verificationCode + ",有效期5分钟，请勿泄露给他人");
             
             // 发送邮件
             mailSender.send(message);
             
             // 将验证码保存到缓存
             saveVerificationCode(email, verificationCode);
+            
+            // 记录发送时间
+            stringRedisTemplate.opsForValue().set(sendRecordKey, String.valueOf(System.currentTimeMillis()), 
+                EmailConstant.VERIFICATION_CODE_EXPIRATION, TimeUnit.MINUTES);
             
             log.info("验证码发送成功");
             return CompletableFuture.completedFuture(true);
