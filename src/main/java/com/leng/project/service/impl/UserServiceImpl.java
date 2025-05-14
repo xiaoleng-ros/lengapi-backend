@@ -469,31 +469,32 @@ public class UserServiceImpl extends ServiceImpl<UserMapper, User> implements Us
      * 用户邮箱登录
      */
     @Override
-    public LoginUserVO userEmailLogin(String email, String userPassword) {
+    public LoginUserVO userEmailLogin(String email, String verificationCode) {
         // 校验参数
-        if (StringUtils.isAnyBlank(email, userPassword)) {
+        if (StringUtils.isAnyBlank(email, verificationCode)) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
         }
         // 校验邮箱格式
         if (!EMAIL_PATTERN.matcher(email).matches()) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱格式不正确");
         }
-        if (userPassword.length() < 8) {
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "密码错误");
-        }
+        
         // 查询用户
         QueryWrapper<User> queryWrapper = new QueryWrapper<>();
         queryWrapper.eq("email", email);
         User user = this.baseMapper.selectOne(queryWrapper);
-        // 验证用户和密码
-        if (user == null || !passwordEncoder.matches(userPassword, user.getUserPassword())) {
-            log.info("用户登录失败，邮箱或密码错误");
-            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在或密码错误");
+        
+        // 验证用户是否存在
+        if (user == null) {
+            log.info("用户登录失败，邮箱不存在");
+            throw new BusinessException(ErrorCode.PARAMS_ERROR, "用户不存在");
         }
+        
         // 判断用户是否被封禁
         if (UserRoleEnum.BAN.getValue().equals(user.getUserRole())) {
             throw new BusinessException(ErrorCode.NO_AUTH_ERROR, "您的账号已被封禁，无法登录");
         }
+        
         // 生成 JWT 令牌
         String token = JwtUtils.generateToken(user.getUserAccount());
         // 返回登录用户信息和令牌

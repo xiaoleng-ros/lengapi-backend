@@ -16,7 +16,7 @@ import java.util.List;
 public interface UserService extends IService<User> {
 
     /**
-     * 用户注册
+     * 用户账号注册
      */
     long userRegister(String userName, String userAccount, String userPassword, String checkPassword);
     
@@ -26,14 +26,14 @@ public interface UserService extends IService<User> {
     long userEmailRegister(String userName, String email, String userPassword, String checkPassword);
 
     /**
-     * 用户登录
+     * 用户账号登录
      */
     LoginUserVO userLogin(String userAccount, String userPassword);
     
     /**
      * 用户邮箱登录
      */
-    LoginUserVO userEmailLogin(String email, String userPassword);
+    LoginUserVO userEmailLogin(String email, String verificationCode);
 
     /**
      * 获取当前登录用户

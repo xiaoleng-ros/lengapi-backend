@@ -104,27 +104,27 @@ public class UserController {
         }
         
         String userAccount = userLoginRequest.getUserAccount();
-        String email = userLoginRequest.getEmail();
         String userPassword = userLoginRequest.getUserPassword();
+        String email = userLoginRequest.getEmail();
         String verificationCode = userLoginRequest.getVerificationCode();
         
         // 判断是使用账号登录还是邮箱登录
         LoginUserVO loginUserVO;
         if (StringUtils.isNotBlank(email)) {
             // 邮箱登录
-            if (StringUtils.isAnyBlank(email, userPassword, verificationCode)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+            if (StringUtils.isAnyBlank(email, verificationCode)) {
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "邮箱和验证码不能为空");
             }
             // 验证验证码
             boolean isValid = emailVerificationService.verifyCode(email, verificationCode);
             if (!isValid) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "验证码错误或已过期");
             }
-            loginUserVO = userService.userEmailLogin(email, userPassword);
+            loginUserVO = userService.userEmailLogin(email, verificationCode);
         } else {
             // 账号登录
             if (StringUtils.isAnyBlank(userAccount, userPassword)) {
-                throw new BusinessException(ErrorCode.PARAMS_ERROR, "参数为空");
+                throw new BusinessException(ErrorCode.PARAMS_ERROR, "账号和密码不能为空");
             }
             loginUserVO = userService.userLogin(userAccount, userPassword);
         }
@@ -132,7 +132,7 @@ public class UserController {
         // 返回包含令牌的响应
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("token", loginUserVO.getToken());
-        responseMap.put("user", loginUserVO); // 返回脱敏后的用户信息
+        responseMap.put("user", loginUserVO);
         return ResultUtils.success(responseMap);
     }
 
