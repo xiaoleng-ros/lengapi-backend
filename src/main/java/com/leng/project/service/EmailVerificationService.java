@@ -1,16 +1,18 @@
 package com.leng.project.service;
 
+import java.util.concurrent.CompletableFuture;
+
 /**
  * 邮箱验证码服务
  */
 public interface EmailVerificationService {
     
     /**
-     * 生成并发送验证码
+     * 发送验证码
      * @param email 邮箱地址
-     * @return 是否发送成功
+     * @return Future<Boolean> 异步执行结果
      */
-    boolean sendVerificationCode(String email);
+    CompletableFuture<Boolean> sendVerificationCode(String email);
     
     /**
      * 验证验证码是否正确

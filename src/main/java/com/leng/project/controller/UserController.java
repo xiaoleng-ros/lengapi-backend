@@ -25,6 +25,7 @@ import javax.servlet.http.HttpServletRequest;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.concurrent.CompletableFuture;
 
 
 /**
@@ -52,8 +53,14 @@ public class UserController {
         if (useremailRequest == null || StringUtils.isBlank(useremailRequest.getEmail())) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        boolean result = emailVerificationService.sendVerificationCode(useremailRequest.getEmail());
-        return ResultUtils.success(result);
+        try {
+            CompletableFuture<Boolean> future = emailVerificationService.sendVerificationCode(useremailRequest.getEmail());
+            // 这里我们不等待结果，直接返回true表示验证码发送请求已接收
+            return ResultUtils.success(true);
+        } catch (Exception e) {
+            log.error("发送验证码失败", e);
+            return ResultUtils.error(ErrorCode.OPERATION_ERROR, "验证码发送失败");
+        }
     }
 
     /**
