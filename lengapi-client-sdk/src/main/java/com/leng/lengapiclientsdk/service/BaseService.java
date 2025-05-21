@@ -84,24 +84,19 @@ public abstract class BaseService implements ApiService {
         }
         String path = request.getPath().trim();
         String method = request.getMethod().trim().toUpperCase();
-
         if (ObjectUtils.isEmpty(method)) {
             throw new ApiException(ErrorCode.OPERATION_ERROR, "请求方法不存在");
         }
         if (StringUtils.isBlank(path)) {
             throw new ApiException(ErrorCode.OPERATION_ERROR, "请求路径不存在");
         }
-
         String url = splicingGetRequest(request, path);
         log.info("请求方法：{}，请求路径：{}，请求参数：{}", method, path, request.getRequestParams());
-
         Map<String, String> headers = getHeaders(JSONUtil.toJsonStr(request), lengApiClient);
         HttpRequest.Builder builder = HttpRequest.newBuilder()
                 .uri(URI.create(url));
-
         // 添加请求头
         headers.forEach(builder::header);
-
         switch (method) {
             case "GET":
                 break;
@@ -111,7 +106,6 @@ public abstract class BaseService implements ApiService {
             default:
                 throw new ApiException(ErrorCode.OPERATION_ERROR, "不支持该请求方法");
         }
-
         return builder.build();
     }
 

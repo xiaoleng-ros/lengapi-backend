@@ -6,7 +6,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 /**
- * 用户更新请求
+ * 管理员更新用户请求
  *
  */
 @Data

@@ -77,7 +77,6 @@ public class UserController {
         String userPassword = userRegisterRequest.getUserPassword();
         String checkPassword = userRegisterRequest.getCheckPassword();
         String verificationCode = userRegisterRequest.getVerificationCode();
-        
         // 判断是使用账号注册还是邮箱注册
         if (StringUtils.isNotBlank(email)) {
             // 邮箱注册
@@ -109,12 +108,10 @@ public class UserController {
         if (userLoginRequest == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR);
         }
-        
         String userAccount = userLoginRequest.getUserAccount();
         String userPassword = userLoginRequest.getUserPassword();
         String email = userLoginRequest.getEmail();
         String verificationCode = userLoginRequest.getVerificationCode();
-        
         // 判断是使用账号登录还是邮箱登录
         LoginUserVO loginUserVO;
         if (StringUtils.isNotBlank(email)) {
@@ -135,7 +132,6 @@ public class UserController {
             }
             loginUserVO = userService.userLogin(userAccount, userPassword);
         }
-        
         // 返回包含令牌的响应
         Map<String, Object> responseMap = new HashMap<>();
         responseMap.put("token", loginUserVO.getToken());

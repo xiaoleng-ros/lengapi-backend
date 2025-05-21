@@ -54,22 +54,24 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
     @Value("${api.base-url}")
     private String INTERFACE_HOST;
 
+    /**
+     * 全局过滤
+     * @param exchange
+     * @param chain
+     * @return
+     */
     @Override
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
         String path = INTERFACE_HOST + request.getPath().value();
         String method = request.getMethod().toString();
-
         // 获取客户端的真实 IP
         String sourceAddress = Objects.requireNonNull(request.getRemoteAddress()).getHostString();
-
         log.info("请求路径：{}，请求方法：{}，来源 IP：{}", path, method, sourceAddress);
-
         // IP 白名单校验
         if (!IP_WHITE_LIST.contains(sourceAddress)) {
             return handleNoAuth(exchange.getResponse());
         }
-
         // 获取请求头参数
         HttpHeaders headers = request.getHeaders();
         String accessKey = headers.getFirst("accessKey");
@@ -78,10 +80,8 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         String sign = headers.getFirst("sign");
         String body = new String(Objects.requireNonNull(headers.getFirst("body"))
                 .getBytes(StandardCharsets.ISO_8859_1), StandardCharsets.UTF_8);
-
         log.info("请求参数：accessKey={}, nonce={}, timestamp={}, sign={}, body={}",
                 accessKey, nonce, timestamp, sign, body);
-
         // 用户鉴权
         User invokeUser = null;
         try {
@@ -90,11 +90,9 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             log.error("获取用户信息失败", e);
             return handleNoAuth(exchange.getResponse());
         }
-
         if (invokeUser == null) {
             return handleNoAuth(exchange.getResponse());
         }
-
         // 校验 nonce 和 timestamp
         long nonceValue = 0;
         if (nonce != null) {
@@ -104,7 +102,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
         if (timestamp != null && (nonceValue > 10000L || (currentTime - Long.parseLong(timestamp)) >= 300)) {
             return handleNoAuth(exchange.getResponse());
         }
-
         // 校验签名
         String secretKey = invokeUser.getSecretKey();
         String serverSign = SignUtils.genSign(body, secretKey);
@@ -112,7 +109,6 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             log.error("签名验证失败：客户端签名={}, 服务端签名={}", sign, serverSign);
             return handleNoAuth(exchange.getResponse());
         }
-
         // 校验接口是否存在
         InterfaceInfo interfaceInfo = null;
         try {
@@ -121,21 +117,26 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
             log.error("获取接口信息失败", e);
             return handleNoAuth(exchange.getResponse());
         }
-
         if (interfaceInfo == null) {
             return handleNoAuth(exchange.getResponse());
         }
-
         // 转发请求并处理响应
         return handleResponse(exchange, chain, interfaceInfo.getId(), invokeUser.getId());
     }
 
+    /**
+     * 处理响应
+     * @param exchange
+     * @param chain
+     * @param id
+     * @param userId
+     * @return
+     */
     public Mono<Void> handleResponse(ServerWebExchange exchange, GatewayFilterChain chain,
                                      Long id, Long userId) {
 
         ServerHttpResponse originalResponse = exchange.getResponse();
         DataBufferFactory bufferFactory = originalResponse.bufferFactory();
-
         ServerHttpResponseDecorator decoratedResponse = new ServerHttpResponseDecorator(originalResponse) {
             // 修改后的writeWith方法，添加@NonNull注解
             @Override
@@ -167,20 +168,33 @@ public class CustomGlobalFilter implements GlobalFilter, Ordered {
                 return super.writeWith(body);
             }
         };
-
         return chain.filter(exchange.mutate().response(decoratedResponse).build());
     }
 
+    /**
+     * 获取过滤器优先级
+     * @return
+     */
     @Override
     public int getOrder() {
         return -1;
     }
 
+    /**
+     * 处理没有权限的请求
+     * @param response
+     * @return
+     */
     public Mono<Void> handleNoAuth(ServerHttpResponse response) {
         response.setStatusCode(HttpStatus.FORBIDDEN);
         return response.setComplete();
     }
 
+    /**
+     * 处理调用失败的请求
+     * @param response
+     * @return
+     */
     public Mono<Void> handleInvokeError(ServerHttpResponse response) {
         response.setStatusCode(HttpStatus.INTERNAL_SERVER_ERROR);
         return response.setComplete();

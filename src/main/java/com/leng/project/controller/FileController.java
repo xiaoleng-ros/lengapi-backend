@@ -50,47 +50,37 @@ public class FileController {
         if (fileUploadBizEnum == null) {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "业务类型不支持");
         }
-
         // 校验文件
         validFile(multipartFile, fileUploadBizEnum);
-
         // 获取当前登录用户
         User loginUser = userService.getLoginUser(request);
         if (loginUser == null) {
             throw new BusinessException(ErrorCode.NOT_LOGIN_ERROR, "用户未登录");
         }
-
         // 生成文件名
         String timestamp = String.valueOf(System.currentTimeMillis());
         String uuid = RandomStringUtils.randomAlphanumeric(8);
         String originalFilename = multipartFile.getOriginalFilename();
         String filename = timestamp + "-" + uuid + "-" + originalFilename;
-
         // 生成文件路径
         String filepath = String.format("/%s/%s/%s", fileUploadBizEnum.getValue(), loginUser.getId(), filename);
-
         File file = null;
         try {
             // 检查文件是否为空
             if (multipartFile.isEmpty()) {
                 throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件内容为空");
             }
-
             // 上传文件到临时目录
             file = File.createTempFile(filepath, null);
             multipartFile.transferTo(file);
-
             // 上传到对象存储
             cosManager.putObject(filepath, file);
-
             // 返回可访问地址
             String fileUrl = FileConstant.COS_HOST + filepath;
-
             // 如果是用户头像业务类型，更新用户头像
             if (FileUploadBizEnum.USER_AVATAR.equals(fileUploadBizEnum)) {
                 userService.updateUserAvatar(loginUser.getId(), fileUrl);
             }
-
             return ResultUtils.success(fileUrl);
         } catch (Exception e) {
             log.error("文件上传失败，filepath = {}, error = {}", filepath, e.getMessage(), e);
@@ -113,11 +103,9 @@ public class FileController {
             throw new BusinessException(ErrorCode.PARAMS_ERROR, "文件名不能为空");
         }
         String fileSuffix = FileUtil.getSuffix(originalFilename);
-
         // 文件大小校验
         long fileSize = multipartFile.getSize();
         final long MAX_FILE_SIZE = 1024 * 1024L * 2; // 2MB
-
         // 根据业务类型校验文件
         if (FileUploadBizEnum.USER_AVATAR.equals(fileUploadBizEnum)) {
             if (fileSize > MAX_FILE_SIZE) {
